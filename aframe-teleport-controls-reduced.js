@@ -126,7 +126,6 @@
 		},
 
 		update: function (oldData) {
-			this.data.maxLength = this.data.game.components.game.data.battery/20;
 			var data = this.data;
 			var diff = AFRAME.utils.diff(data, oldData);
 			this.referenceNormal.copy(data.landingNormal);
@@ -183,7 +182,7 @@
 			var timeSinceDrawStart = 0;
 
 			return function (time, delta) {
-				this.data.maxLength = this.data.game.components.game.data.battery/20;
+				this.data.maxLength = this.data.game.components.game.data.battery/10;
 				if (!this.active) { return; }
 				if (this.data.drawIncrementally && this.redrawLine){
 					this.redrawLine = false;
