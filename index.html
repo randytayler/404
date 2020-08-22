@@ -286,6 +286,15 @@ function buildBot(i,x,z){
 						{type:'a-cylinder',attributes:',,0 -.15 0,0 45 0,,,,,.3,,,,,,,,,,,,.06,,,,6'},
 						{type:'a-sphere',attributes:',,0 -.3 0,-30 0 0,,,#000,,,,,,,,,,,,,,.07,,,8,,,,8',children:[{type:'a-cylinder',attributes:',,0 -.15 0,0 45 0,,,,,.3,,,,,,,,,,,,.04,,,,6',children:[{type:'a-cylinder',attributes:',,0 -.16 0,90 45 -45,1.6 1 1.5,,#fff,,.08,,,,,,,,,,,,.04,,double,,5,300'}]}]}
 					]},document.querySelector("#robotrot"));
+
+	var botlight = document.createElement('a-light');
+	document.querySelector("#eye").appendChild(botlight);
+	botlight.setAttribute('id','botlight');
+	botlight.setAttribute('position', '0 -.2 1');
+	botlight.setAttribute('intensity',.5);
+	botlight.setAttribute('type','point');
+	botlight.setAttribute('color','#fff');
+	botlight.setAttribute('distance',2);
 }
 
 function draw(){
@@ -302,22 +311,18 @@ function draw(){
 	holoImage = c2.toDataURL("image/png");
 	//document.querySelector('#holo').setAttribute('src', holoImage);
 
-	ctx2.clearRect(0,0,600,1200);
-	ctx2.fillText('⚡️',300,400);
-	holoImage = c2.toDataURL("image/png");
-	document.querySelector('#batteryParentUI').setAttribute('src', holoImage);
+	//ctx2.clearRect(0,0,600,1200);
+	//ctx2.fillText('⚡️',300,400);
+	//holoImage = c2.toDataURL("image/png");
+	//document.querySelector('#batteryParentUI').setAttribute('src', holoImage);
 }
 
-function deleteWall(name){
-	el = document.querySelector("#"+name);
-	if (el) {
-		el.parentNode.removeChild(el);
-	}
-}
+function deleteWall(name){if(document.querySelector("#"+name))document.querySelector("#"+name).parentNode.removeChild(document.querySelector("#"+name));}
 
 AFRAME.registerComponent('game', {
 	schema: {
-		battery:{default:20},
+		timer:{type:'int',default:0},
+		battery:{default:50},
 		batteryUI:{type:'selector'}
 	},
 	init: function() {
@@ -325,11 +330,18 @@ AFRAME.registerComponent('game', {
 		buildShip();
 		draw();
 		document.querySelector("#log2").setAttribute('font','exo2semibold');
-		this.batteryUI = document.querySelector("#batteryUI");
-		this.battery = 50;
+		this.data.batteryUI = document.querySelector("#batteryUI");
+		this.data.battery = 50;
 	},
 	tick: function(){
-		this.batteryUI.setAttribute('scale',this.battery/50+' 1 1');
+		this.data.timer++;
+		if (this.data.timer >= 30) {
+			this.data.battery+=1;
+			this.data.timer = 0;
+			if(this.data.battery>100)this.data.battery=100;
+		}
+		this.data.batteryUI.setAttribute('scale',this.data.battery/100+' 1 1');
+		this.data.batteryUI.setAttribute('position',(1+(this.data.battery/100/2))+' '+this.data.batteryUI.object3D.position.y+' '+this.data.batteryUI.object3D.position.z);
 	}
 });
 
@@ -573,7 +585,7 @@ function fireSound(){
 function laser(){
 	var eye = document.querySelector("#eye");
 	eye.setAttribute('color', '#99F');
-	//document.querySelector("#botlight").setAttribute('color', '#99F');
+	document.querySelector("#botlight").setAttribute('color', '#99F');
 	var worldPos = new THREE.Vector3();
 	eye.object3D.getWorldPosition(worldPos);
 	var target = document.querySelector("#"+currentTarget);
@@ -589,7 +601,7 @@ function endLaser(){
 	if (el) {
 		var eye = document.querySelector("#eye");
 		eye.setAttribute('color', 'white');
-		//document.querySelector("#botlight").setAttribute('color', '#fff');
+		document.querySelector("#botlight").setAttribute('color', '#fff');
 		el.parentNode.removeChild(el);
 	}
 }
@@ -799,7 +811,7 @@ AFRAME.registerComponent('gaze', {
     <canvas id="gradient" style="display:none" height=1024 width=1024></canvas>
     <canvas id="holocanvas" width="600" height="1200" style="display:none"></canvas>
  	<a-scene id='a-scene' background="color:#000" antialias='true'><!-- stats>-->
- 		<a-entity game></a-entity>
+ 		<a-entity id=game game></a-entity>
     	<a-assets>
 			<img id="aurora" src="stars.jpg">
 		</a-assets>
@@ -815,7 +827,7 @@ AFRAME.registerComponent('gaze', {
 			<a-entity camera id="camera" wasd-controls="acceleration:150" look-controls="reverseMouseDrag: false" position="0 1.4 0">
 				<a-cylinder class="collidable" height=3 visible=true position="0 1 0" id="player" radius=".5"></a-cylinder>
 				<a-text id="batteryParentUI" value="BATTERY" position="-.3 .15 -.6" opacity=".7" scale=".2 .2 .2">
-					<a-plane id="batteryUI" position="1.5 0 0" width=1 height=.15 color=yellow material=shader:flat opacity=.7></a-plane>
+					<a-plane id="batteryUI" position="1 0 0" width=1 height=.15 color=yellow material=shader:flat opacity=.7></a-plane>
 				</a-text>
 				<a-text position="-.5 -.2 -1" value=" " id="log2"></a-text>
 			</a-entity>
