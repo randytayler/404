@@ -313,7 +313,7 @@ function deleteWall(name){if(document.querySelector("#"+name))document.querySele
 AFRAME.registerComponent('game', {
 	schema: {
 		timer:{type:'int',default:0},
-		battery:{default:100},
+		battery:{default:50},
 		batteryUI:{type:'selector'}
 	},
 	init: function() {
@@ -322,7 +322,7 @@ AFRAME.registerComponent('game', {
 		draw();
 		document.querySelector("#log2").setAttribute('font','exo2semibold');
 		this.data.batteryUI = document.querySelector("#batteryUI");
-		this.data.battery = 100;
+		this.data.battery = 50;
 	},
 	tick: function(){
 		this.data.timer++;
