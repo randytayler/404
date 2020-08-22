@@ -69,7 +69,8 @@
 			drawIncrementally: {default: false},
 			incrementalDrawMs: {default: 700},
 			missOpacity: {default: 1.0},
-			hitOpacity: {default: 1.0}
+			hitOpacity: {default: 1.0},
+			game: {type:'selector'}
 		},
 
 		init: function () {
@@ -89,6 +90,7 @@
 				hitPoint: this.hitPoint
 			};
 
+			this.data.game = document.querySelector("#game");
 			this.hit = false;
 			this.prevCheckTime = undefined;
 			this.prevHitHeight = 0;
@@ -124,6 +126,7 @@
 		},
 
 		update: function (oldData) {
+			this.data.maxLength = this.data.game.components.game.data.battery/20;
 			var data = this.data;
 			var diff = AFRAME.utils.diff(data, oldData);
 			this.referenceNormal.copy(data.landingNormal);
@@ -180,6 +183,7 @@
 			var timeSinceDrawStart = 0;
 
 			return function (time, delta) {
+				this.data.maxLength = this.data.game.components.game.data.battery/20;
 				if (!this.active) { return; }
 				if (this.data.drawIncrementally && this.redrawLine){
 					this.redrawLine = false;
@@ -302,7 +306,8 @@
 						hands[i].setAttribute('position', newHandPosition[i]);
 					}
 				}
-				document.querySelector("#game").components.game.data.battery-=10;
+				this.data.game.components.game.data.battery-=20;
+				if(this.data.game.components.game.data.battery<0)this.data.game.components.game.data.battery=0;
 				this.el.emit('teleported', this.teleportEventDetail);
 			};
 		})(),
