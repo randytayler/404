@@ -58,7 +58,7 @@ var firing = false;
 var levels=[[map,map2,'0,0,0','4,2'],[map3,map4,'0,2,90','4,2'],[map5,map6,'0,2,90','6,2']];
 var botPaths = [[[{x:0,z:9},{rot:90},{x:9,z:9},{rot:270}]],
 	[[{x:6,z:12},{rot:180},{x:6,z:0},{rot:0}]],
-	[[{x:6,z:3},{rot:0},{x:6,z:9},{rot:180}]]
+	[[{x:6,z:3},{rot:0},{x:6,z:9},{rot:180}],[{x:12,z:0},{rot:0},{x:12,z:12},{rot:180}]]
 ];
 var attnames = ['probability','id','position','rotation','scale','class','color','width','height','opacity','src','repeat','animation','font','value','baseline','align','intensity','distance','depth','radius','open-ended','side','segments-height','segments-radial','theta-length','segments','segments-width','segments-tubular','radius-tubular','arc','gaze','raycaster','line','material'];
 
@@ -257,7 +257,7 @@ function transporter(x, y, z) {
 }
 function buildBot(i,x,z){
 	buildEntity({type:'a-entity',attributes:',robot'+i+','+x+' 0 '+z+',0 180 0,,robot',children:[
-			{type:'a-entity',attributes:',robotrot,0 .6 0',children:[
+			{type:'a-entity',attributes:',robotrot'+i+',0 .6 0',children:[
 				{type:'a-cylinder',attributes:',,0 0 0,,,,#fff,,1,,,,,,,,,,,,.3,,,12'},
 				{type:'a-cylinder',attributes:',,0 .5 0,,,,#000,,.02,,,,,,,,,,,,.31,true,double'},
 				{type:'a-cylinder',attributes:',,0 -.5 0,,,,#000,,.02,,,,,,,,,,,,.31,true,double'},
@@ -282,17 +282,17 @@ function buildBot(i,x,z){
 		{type:'a-cylinder',attributes:',,0 .15 0,0 45 0,,,#000,,.02,,,,,,,,,,,,.26,true,double,,12'},
 		{type:'a-cylinder',attributes:',,0 -.15 0,0 45 0,,,#000,,.02,,,,,,,,,,,,.26,true,double,,12'}
 		]
-	},document.querySelector("#robotrot"));
+	},document.querySelector("#robotrot"+i));
 	buildEntity({type:'a-sphere',attributes:',leftarm,.35 .4 0,-30 0 0,,,#000,,,,,,property:rotation;from:0 0 0;to:30 0 0;loop:true;dur:1000;easing:linear;dir:alternate,,,,,,,,.07,,,8,,,,8',
 					children:[
 						{type:'a-cylinder',attributes:',,0 -.15 0,0 45 0,,,,,.3,,,,,,,,,,,,.06,,,,6'},
 						{type:'a-sphere',attributes:',,0 -.3 0,-30 0 0,,,#000,,,,,,,,,,,,,,.07,,,8,,,,8',children:[{type:'a-cylinder',attributes:',,0 -.15 0,0 45 0,,,,,.3,,,,,,,,,,,,.04,,,,6',children:[{type:'a-cylinder',attributes:',,0 -.16 0,90 -45 -45,1.6 1 1.5,,#fff,,.08,,,,,,,,,,,,.04,,double,,5,300'}]}]}
-					]},document.querySelector("#robotrot"));
+					]},document.querySelector("#robotrot"+i));
 	buildEntity({type:'a-sphere',attributes:',rightarm,-.35 .4 0,-30 0 0,,,#000,,,,,,property:rotation;from:30 0 0;to:0 0 0;loop:true;dur:1000;easing:linear;dir:alternate,,,,,,,,.07,,,8,,,,8',
 					children:[
 						{type:'a-cylinder',attributes:',,0 -.15 0,0 45 0,,,,,.3,,,,,,,,,,,,.06,,,,6'},
 						{type:'a-sphere',attributes:',,0 -.3 0,-30 0 0,,,#000,,,,,,,,,,,,,,.07,,,8,,,,8',children:[{type:'a-cylinder',attributes:',,0 -.15 0,0 45 0,,,,,.3,,,,,,,,,,,,.04,,,,6',children:[{type:'a-cylinder',attributes:',,0 -.16 0,90 45 -45,1.6 1 1.5,,#fff,,.08,,,,,,,,,,,,.04,,double,,5,300'}]}]}
-					]},document.querySelector("#robotrot"));
+					]},document.querySelector("#robotrot"+i));
 
 	var botlight = document.createElement('a-light');
 	document.querySelector("#eyerobot"+i).appendChild(botlight);
@@ -304,7 +304,9 @@ function buildBot(i,x,z){
 	botlight.setAttribute('distance',2);
 }
 function draw(){
-	buildBot(1,botPaths[level][0][0].x,botPaths[level][0][0].z);
+    for(var b in botPaths[level]) {
+        buildBot(b, botPaths[level][b][0].x, botPaths[level][b][0].z);
+    }
 	startPos=levels[level][2].split(',');
 	exitPos=levels[level][3].split(',');//doorZ=Math.floor(Math.random()*height);
 	doorZ=exitPos[1]*3;
@@ -691,7 +693,7 @@ AFRAME.registerComponent('robot', {
 	},
 	init: function() {
 		var el = this.el;
-		this.data.path = botPaths[level][0];
+		this.data.path = botPaths[level][el.id.replace(/robot/,'')];
 		this.step = -1;
 		this.takeNextStep(el);
 	},
