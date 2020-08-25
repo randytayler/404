@@ -37,8 +37,7 @@ function ss(val,id){
 	if (talking != val){
 		talking = val;
 		zzfx(...lines[val]);
-		//document.querySelector("#log2").setAttribute('scale',vol + ' ' + vol + ' ' + vol);
-		document.querySelector("#log2").setAttribute('value',titles[val]);
+		document.querySelector("#log").setAttribute('value',titles[val]);
 	}
 }
 var height=4;
@@ -63,7 +62,7 @@ var botPaths = [
 	[[{x:6,z:12},{rot:180},{x:6,z:0},{rot:0}]],
 	[[{x:6,z:3},{rot:0},{x:6,z:9},{rot:180}],[{x:12,z:0},{rot:0},{x:12,z:12},{rot:180}]]
 ];
-var attnames = ['probability','id','position','rotation','scale','class','color','width','height','opacity','src','repeat','animation','font','value','baseline','align','intensity','distance','depth','radius','open-ended','side','segments-height','segments-radial','theta-length','segments','segments-width','segments-tubular','radius-tubular','arc','gaze','raycaster','line','material'];
+var attnames = ['probability','id','position','rotation','scale','class','color','width','height','opacity','src','repeat','animation','font','value','baseline','align','intensity','distance','depth','radius','open-ended','side','segments-height','segments-radial','theta-length','segments','segments-width','segments-tubular','radius-tubular','arc','gaze','raycaster','line','material','transparent'];
 
 function buildMap(){
 	var map = levels[level][0];
@@ -312,8 +311,8 @@ function draw(){
     }
 	startPos=levels[level][2].split(',');
 	exitPos=levels[level][3].split(',');
+    doorX=exitPos[0]*3;
 	doorZ=exitPos[1]*3;
-	doorX=exitPos[0]*3;
 	door(doorX-1.5,1,doorZ,0,'door');
 	escape(doorX, 0, doorZ);
 	//deleteWall('we'+doorZ+'_'+(width-1));
@@ -333,116 +332,21 @@ function draw(){
 }
 function deleteWall(name){if(document.querySelector("#"+name))document.querySelector("#"+name).parentNode.removeChild(document.querySelector("#"+name));}
 function door(x, y, z, roty, id){
-    var el = document.createElement('a-entity');
-    el.setAttribute('position',x + ' ' + y + ' ' + z);
-    el.setAttribute('rotation','0 ' + roty + ' 0');
-    el.setAttribute('id', id);
-    document.querySelector("#a-scene").appendChild(el);
-
-    var p1 = document.createElement('a-box');
-    p1.setAttribute('position','0 0 1.2');
-    p1.setAttribute('width', .2);
-    p1.setAttribute('height', 2);
-    p1.setAttribute('depth', .6);
-    p1.setAttribute('color', 'white');
-    p1.setAttribute('class', 'collidable');
-    p1.setAttribute('id','doorframe');
-    el.appendChild(p1);
-
-    p1 = document.createElement('a-box');
-    p1.setAttribute('position','0 0 -1.2');
-    p1.setAttribute('width', .2);
-    p1.setAttribute('height', 2);
-    p1.setAttribute('depth', .6);
-    p1.setAttribute('color', 'white');
-    p1.setAttribute('class', 'collidable');
-    p1.setAttribute('id','doorframe2');
-    el.appendChild(p1);
-
-
-    var innerDoor = document.createElement('a-entity');
-    el.appendChild(innerDoor);
-    innerDoor.setAttribute('id', 'inner-door');
-    innerDoor.setAttribute('closed', true);
-    innerDoor.setAttribute('door', true);
-
-    var hitbox = document.createElement('a-cylinder');
-    hitbox.setAttribute('position','-.01 0 .75');
-    hitbox.setAttribute('rotation', '0 0 90');
-    hitbox.setAttribute('radius', .15);
-    hitbox.setAttribute('width', .2);
-    hitbox.setAttribute('height', .12);
-    hitbox.setAttribute('depth', .3);
-    hitbox.setAttribute('color', 'red');
-    hitbox.setAttribute('id', 'hitbox');
-    innerDoor.appendChild(hitbox);
-    var open = document.createElement('a-text');
-    open.setAttribute('value', 'OPEN');
-    open.setAttribute('position', '.02 .07 -.12');
-    open.setAttribute('rotation', '-90 270 0');
-    open.setAttribute('scale', '.4 .4 .4');
-    open.setAttribute('font', 'exo2semibold');
-    hitbox.appendChild(open);
-
-    var p1 = document.createElement('a-box');
-    p1.setAttribute('position','0 0 .8');
-    p1.setAttribute('width', .08);
-    p1.setAttribute('height', 2);
-    p1.setAttribute('depth', .5);
-    p1.setAttribute('color', '#999');
-    innerDoor.appendChild(p1);
-
-
-    p1 = document.createElement('a-box');
-    p1.setAttribute('position','0 0 -.8');
-    p1.setAttribute('width', .08);
-    p1.setAttribute('height', 2);
-    p1.setAttribute('depth', .5);
-    p1.setAttribute('color', '#999');
-    innerDoor.appendChild(p1);
-
-
-    var idTop = document.createElement('a-box');
-    innerDoor.appendChild(idTop);
-    idTop.setAttribute('position','0 .9 0');
-    idTop.setAttribute('width', .08);
-    idTop.setAttribute('height', .2);
-    idTop.setAttribute('depth', 1.4);
-    idTop.setAttribute('color', '#999');
-
-
-    var idBottom = document.createElement('a-box');
-    innerDoor.appendChild(idBottom);
-    idBottom.setAttribute('position','0 -.8 0');
-    idBottom.setAttribute('width', .08);
-    idBottom.setAttribute('height', .5);
-    idBottom.setAttribute('depth', 1.4);
-    idBottom.setAttribute('color', '#999');
-
-    var glass = document.createElement('a-plane');
-    innerDoor.appendChild(glass);
-    glass.setAttribute('rotation', '180 90 0');
-    glass.setAttribute('color', 'blue');
-    glass.setAttribute('transparent', true);
-    glass.setAttribute('opacity', .5);
-    glass.setAttribute('width', 1.4);
-    glass.setAttribute('height', 1.5);
-    glass.setAttribute('position','0 .2 0');
-    glass.setAttribute('side', 'double');
-    glass.setAttribute('id', 'glass');
-    glass.setAttribute('class', 'collidable');
-
-    var exittext = document.createElement('a-text');
-    innerDoor.appendChild(exittext);
-    exittext.setAttribute('value', 'EXIT');
-    exittext.setAttribute('color', 'white');
-    exittext.setAttribute('font', 'exo2semibold');
-    exittext.setAttribute('position', '-.01 .5 0');
-    exittext.setAttribute('rotation', '0 270 0');
-    exittext.setAttribute('width', 3);
-    exittext.setAttribute('scale', '2 2.5 2');
-    exittext.setAttribute('baseline', 'top');
-    exittext.setAttribute('align', 'center');
+    buildEntity({type:'a-entity',attributes:','+id+','+x+' '+y+' '+z+',0 '+roty+' 0',children:[
+					{type:'a-box',attributes:',,0 0 1.2,,,collidable,#fff,.2,2,,,,,,,,,,,.6'},
+					{type:'a-box',attributes:',,0 0 -1.2,,,collidable,#fff,.2,2,,,,,,,,,,,.6'}
+				]},document.querySelector("#a-scene"));
+	buildEntity({type:'a-entity',attributes:',innerdoor,'+x+' '+y+' '+z+',0 '+roty+' 0,,door',children:[
+					{type:'a-cylinder',attributes:',hitbox,-.01 0 .75,0 0 90,,,#900,,.12,,,,,,,,,,,,.15',children:[
+						{type:'a-text',attributes:',,.02 .07 -.12,-90 270 0,.4 .4 .4,,,,,,,,,exo2semibold,OPEN'},
+					]},
+					{type:'a-box',attributes:',,0 0 .8,,,,#999,.08,2,,,,,,,,,,,.5'},
+					{type:'a-box',attributes:',,0 0 -.8,,,,#999,.08,2,,,,,,,,,,,.5'},
+					{type:'a-box',attributes:',,0 .9 0,,,,#999,.08,.2,,,,,,,,,,,1.4'},
+					{type:'a-box',attributes:',,0 -.8 0,,,,#999,.08,.5,,,,,,,,,,,1.4'},
+					{type:'a-plane',attributes:',,0 .2 0,180 90 0,,collidable,#00f,1.4,1.5,.8,,,,,,,,,,,,,double,,,,,,,,,,,,,true'},
+					{type:'a-text',attributes:',,-.01 .5 0,0 270 0,2 2.5 2,,#fff,3,,,,,,exo2semibold,EXIT,top,center'},
+                ]},document.querySelector("#a-scene"));
 }
 function win(x, y, z, roty, id) {
     buildEntity({type:'a-entity',attributes:','+id+','+x+' '+y+' '+z+',0 '+roty+' 0',children:[
@@ -622,8 +526,8 @@ function hitPlayer(robotPos, lineEnd){
 function loadLevel(levelLocal){
     if (!loaded) {
         loaded=true;
-        document.querySelector("#log3").setAttribute('font', 'exo2semibold');
-        document.querySelector("#log3").setAttribute('value', 'LOADING...');
+        document.querySelector("#log").setAttribute('font', 'exo2semibold');
+        document.querySelector("#log").setAttribute('value', 'LOADING...');
         level = levelLocal;
         buildMap();
         buildShip();
@@ -700,7 +604,6 @@ AFRAME.registerComponent('right-controller', {
 		var controllerX = rigPos.x - elPos.x;
 		var controllerY = rigPos.y + elPos.y;
 		var controllerZ = rigPos.z - elPos.z;
-		//document.querySelector("#log2").setAttribute('value', Math.round(controllerX,2) + ' ' + Math.round(controllerY,2) + ' ' + Math.round(controllerZ,2));
 /*
 		this.data.doorPos = this.data.door.object3D.position;
 		this.data.buttonPosX = this.data.doorPos.x + this.data.hitbox.object3D.position.x;
@@ -713,16 +616,6 @@ AFRAME.registerComponent('right-controller', {
 			this.data.innerDoor.setAttribute('animation', {property:'position',to:'0 1.8 0',dur:500});
 		}
 		*/
-		var button = document.querySelector('#startButton');
-		if (button) {
-            if (collided(controllerX, controllerY, controllerZ, button.getAttribute('position'), button)) {
-                document.querySelector("#log2").setAttribute('value', 'HIT BUTTON!');
-            }/* else {
-
-            document.querySelector("#log2").setAttribute('value', Math.round(controllerX, 2) + ' ' + Math.round(controllerY, 2) + ' ' + Math.round(controllerZ, 2));
-            document.querySelector("#log3").setAttribute('value', Math.round(button.getAttribute('position').x, 2) + ' ' + Math.round(button.getAttribute('position').y, 2) + ' ' + Math.round(button.getAttribute('position').z, 2));
-        }*/
-        }
 	},
 });
 AFRAME.registerComponent('robot', {
@@ -732,7 +625,8 @@ AFRAME.registerComponent('robot', {
 		dead:{type:'bool', default:false},
 		path:{type:'array'},
 		step:{type:'int',default:-1},
-		speed:{type:'int',default:1000}
+		speed:{type:'int',default:1000},
+        timer:{type:'int',default:0},
 	},
 	init: function() {
 		var el = this.el;
@@ -741,7 +635,14 @@ AFRAME.registerComponent('robot', {
 		this.takeNextStep(el);
 	},
 	tick: function() {
-
+        this.data.timer++;
+		if (this.data.timer >= 100) {
+			el.setAttribute("visible", false);
+		}
+		if (this.data.timer >= 80) {
+			el.setAttribute("visible", true);
+			this.data.timer = 0;
+		}
 	},
 	takeNextStep: function(el){
 		//var el = this.el;
@@ -823,16 +724,11 @@ AFRAME.registerComponent('gaze', {
   init: function () {
   	this.data.robot = this.el.parentEl.parentEl.parentEl.parentEl;//document.querySelector("#robot");
 	this.el.addEventListener('raycaster-intersection', function (evt) {
-		var log = document.querySelector("#log");
-		var log2 = document.querySelector("#log2");
 		var robot = evt.srcElement.parentEl.parentEl.parentEl.parentEl;
 		if ((evt.detail.intersections[0].object.el.id == 'player') || (evt.detail.intersections[0].object.el.id == 'holo')){
 			if (!firing) {
 				if (!robot.components.robot.data.dead) {
-					//document.querySelector("#log2").setAttribute('value', 'linelength='+evt.composedPath()[0].components.line.attrValue.end.z);
-					//console.log(evt.composedPath());
 					if (hitPlayer(robot.object3D.position, evt.composedPath()[0].components.line.attrValue.end)) {
-						//document.querySelector("#log").setAttribute('value', 'SHOOTING PLAYER');
 						this.selectedObj = evt.detail.intersections[0].object.el.id;
 						currentTarget = this.selectedObj;
 						ss(Math.floor(Math.random()*6)+5,robot.id);
@@ -848,7 +744,6 @@ AFRAME.registerComponent('gaze', {
 	this.el.addEventListener('raycaster-intersection-cleared', function(evt){
 		if (this.selectedObj) {
 			this.selectedObj = null;
-			//ss(Math.floor(Math.random()*5));
 		}
 	});
   }
@@ -878,7 +773,7 @@ AFRAME.registerComponent('gaze', {
 				<a-text id="batteryParentUI" value="BATTERY" position="-.3 .15 -.6" opacity=".7" scale=".2 .2 .2">
 					<a-plane id="batteryUI" position="1 0 0" width=1 height=.15 color=yellow material=shader:flat opacity=.7></a-plane>
 				</a-text>
-				<a-text position="0 0 -2" value="aoeu" id="log" text="anchor:center"></a-text>
+				<a-text position="0 -.3 -1" value="aoeu" id="log" text="anchor:center"></a-text>
 				<a-text position="0 -.2 -2" value="aoeu2" id="log2" text="anchor:center"></a-text>
 				<a-text position="0 -.3 -1" value="aoeuaoeu" id="log3" textAlign="center"></a-text>
 			</a-entity>
