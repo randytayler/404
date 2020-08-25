@@ -1,13 +1,7 @@
-﻿<html>
-  <head>
-  	<title>Space</title>
-  	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-  	<meta name="monetization" content="$ilp.uphold.com/U9iHfppnha6L">
-  	<script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
-  	<script src="aframe-teleport-controls-reduced.js"></script>
-  	<script src="zzfx.micro.js"></script>
-  	<script>
-
+﻿<html><head><title>Human Not Found</title><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+	<script src="aframe-teleport-controls-reduced.js"></script><script src="zzfx.micro.js"></script>
+<script>
 var junk = '';
 function shiphum(){
 	zzfx(...[.25,0,150,.5,3,.27,,1.3,,,,,,,,3.3,.15,.5,1]);
@@ -37,14 +31,12 @@ function ss(val,id){
 	if (talking != val){
 		talking = val;
 		zzfx(...lines[val]);
-		document.querySelector("#log").setAttribute('value',titles[val]);
+		document.querySelector("#log3").setAttribute('value',titles[val]);
 	}
 }
 var height=4;
 var width=4;
-var holoImage,gameMap,gameMap2;
-var map = "28,16,16,18;8,258,,2;10,,,;72,65,64,66";
-var map2 = "31,24,24,24;24,57,24,24;24,152,24,25;24,24,24,24";
+var holoImage,gameMap,gameMap2,floorMat;
 var map3 = ",,26,,;,,8,,,;133,5,,,;,,8,,;,,74,,";
 var map4 = ",,56,,;,,24,152,;31,24,25,24,24;,,24,88,;,,24,,";
 var map5 = ",,,,26,;,,26,,10,;133,5,,5,,5;,,74,,10;,,,,74,";
@@ -55,15 +47,126 @@ var nextTurn=Array(3);
 var fireListener=Array(3);
 var firing = false;
 var loaded = false;
-var levels=[//[map,map2,'0,0,0','4,2'],
-	[map3,map4,'0,2,90','4,2'],[map5,map6,'0,2,90','6,2']];
+var levels=[[map3,map4,'0,2,90','4,2'],[map5,map6,'0,2,90','6,2']];
 var botPaths = [
-    //[[{x:0,z:9},{rot:90},{x:9,z:9},{rot:270}]],
 	[[{x:6,z:12},{rot:180},{x:6,z:0},{rot:0}]],
 	[[{x:6,z:3},{rot:0},{x:6,z:9},{rot:180}],[{x:12,z:0},{rot:0},{x:12,z:12},{rot:180}]]
 ];
-var attnames = ['probability','id','position','rotation','scale','class','color','width','height','opacity','src','repeat','animation','font','value','baseline','align','intensity','distance','depth','radius','open-ended','side','segments-height','segments-radial','theta-length','segments','segments-width','segments-tubular','radius-tubular','arc','gaze','raycaster','line','material','transparent'];
-
+var attnames = ['probability','id','position','rotation','scale','class','color','width','height','opacity','src','repeat','animation','font','value','baseline','anchor','intensity','distance','depth','radius','open-ended','side','segments-height','segments-radial','theta-length','segments','segments-width','segments-tubular','radius-tubular','arc','gaze','raycaster','line','material','transparent'];
+function insideEllipse(rx, ry, r1, r2, mx, my){
+    if (((((rx-mx)*(rx-mx))/(r1*r1)) + (((ry-my)*(ry-my))/(r2*r2))) < 1) return true;
+    return false;
+}
+function nebulaInside(rr,rg,rb,x,y,lum,ew,eh,ra,rand,ctx){
+    var rx = Math.round(Math.random()*1000);
+    var ry = Math.round(Math.random()*1000);
+    if (insideEllipse(rx,ry,ew,eh,x,y)){
+        var radius = Math.round(Math.random()*rand);
+        var r=Math.round(Math.random()*rr)+lum;
+        var g=Math.round(Math.random()*rg)+lum;
+        var b=Math.round(Math.random()*rb)+lum;
+        var a=Math.random()/ra;
+        ctx.fillStyle = "rgba("+r+","+g+","+b+","+a+")";
+        ctx.beginPath();
+        ctx.arc(rx,ry,radius,0, 2*Math.PI,false);
+        ctx.fill();
+    }
+}
+function nebula(rr,rg,rb,x,y,lum){
+    var c=document.getElementById('nebula');
+    var ctx=c.getContext('2d');
+    for (i=0;i<1000;i++)nebulaInside(rr,rg,rb,x,y,lum,200,200,10,6,ctx);
+    for (i=0;i<2000;i++)nebulaInside(rr,rg,rb,x,y,lum,150,150,5,3,ctx);
+    for (i=0;i<2000;i++)nebulaInside(rr,rg,rb,x,y,lum,100,100,5,3,ctx);
+    for (i=0;i<100;i++)nebulaInside(rr,rg,rb,x,y,lum,50,50,10,50,ctx);
+    for (i=0;i<100;i++)nebulaInside(rr,rg,rb,x,y,lum,50,50,10,50,ctx);
+}
+function noise(max,xrange,yrange,rr,rg,rb,rplus,gplus,bplus,ctx){
+    for (i=0; i<=max; i++){
+        var rx = Math.round(Math.random()*xrange);
+        var ry = Math.round(Math.random()*yrange);
+        var radius = Math.round(Math.random()*2);
+        var r=Math.round(Math.random()*rr)+rplus;
+        var g=Math.round(Math.random()*rg)+gplus;
+        var b=Math.round(Math.random()*rb)+bplus;
+        var a=1;
+        ctx.fillStyle = "rgba("+r+","+g+","+b+","+a+")";
+        ctx.beginPath();
+        ctx.arc(rx,ry,radius,0, 2*Math.PI,false);
+        ctx.fill();
+    }
+}
+function buildStars() {
+    var c=document.getElementById('stars');
+    var ctx=c.getContext('2d');
+    ctx.fillStyle = "rgba(0,0,0,255)";
+    ctx.fillRect( 0, 0, 4096, 4096 );
+    //noise(150000,4096,4096,15,15,35,0,0,0,ctx);
+    var nebulaCanvas=document.getElementById('nebula');
+    var nebulaCtx = nebulaCanvas.getContext("2d");
+    /*
+    for (var j=0; j<50; j++){
+        nebulaCtx.clearRect(0,0,1024,1024);
+        var startX = startY = 512;
+        var delta=1;
+        var r=Math.round(Math.random()*155);
+        var g=Math.round(Math.random()*155);
+        var b=Math.round(Math.random()*155);
+        for (var i=0; i<50; i++){
+            nebula(r,g,b,startX,startY,100);
+            delta=Math.round(Math.random()*150)-75;
+            startX+=delta*((Math.random()*2)-1);
+            startY+=delta*((Math.random()*2)-1);
+            if(startX>950)startX-=500;
+            if(startX<50)startX=500;
+            if(startY>950)startY=500;
+            if(startY<50)startY=500;
+        }
+        var x = Math.round(Math.random()*3596)-250;
+        var y = Math.round(Math.random()*3596)-250;
+        ctx.drawImage(nebulaCanvas,x,y);
+    }*/
+   noise(10000,4096,4096,55,55,55,200,200,200,ctx);
+}
+function buildFloor() {
+    var c128=document.getElementById('c128');
+    var ctx=c128.getContext('2d');
+    ctx.fillStyle = "rgba(157,157,157,1)";
+    ctx.fillRect( 0, 0, 128, 128 );
+    noise(1000,128,128,25,25,25,150,150,150,ctx);
+    for (i=0; i<128; i+=64){
+        ctx.strokeStyle = "rgba(90,90,90,1)";
+        ctx.beginPath();
+        ctx.moveTo(0,i);
+        ctx.lineTo(i,0);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(128,i);
+        ctx.lineTo(i, 128);
+        ctx.stroke();
+        ctx.strokeStyle = "rgba(200,200,200,1)";
+        ctx.beginPath();
+        ctx.moveTo(i,0);
+        ctx.lineTo(128,128-i);
+        ctx.stroke();
+        ctx.strokeStyle = "rgba(50,50,50,1)";
+        ctx.beginPath();
+        ctx.moveTo(i+2,0);
+        ctx.lineTo(128,128-(i+2));
+        ctx.stroke();
+        ctx.strokeStyle = "rgba(200,200,200,1)";
+        ctx.beginPath();
+        ctx.moveTo(i,128);
+        ctx.lineTo(0,128-i);
+        ctx.stroke();
+        ctx.strokeStyle = "rgba(50,50,50,1)";
+        ctx.beginPath();
+        ctx.moveTo(i+2,128);
+        ctx.lineTo(0,128-(i+2));
+        ctx.stroke();
+    }
+    floorMat = c128.toDataURL("image/png");
+}
 function buildMap(){
 	var map = levels[level][0];
 	start=levels[level][2].split(',');
@@ -122,7 +225,7 @@ function buildShip(){
 				cryo(col*3, .5, 1+row*3);
 			}
 			if (walls2 & 8){
-				buildEntity({type:'a-plane',attributes:',,'+col*3+' 0 '+row*3+',-90 0 0,,floor,#666,3,3,,floor.png,10 10'},document.querySelector('#a-scene'));
+				layFloor(col,row);
 			}
 			if (walls2 & 16){
 				buildEntity({type:'a-plane',attributes:',,'+col*3+' 2 '+row*3+',-270 0 0,,ceiling,#ccc,3,3'},document.querySelector('#a-scene'));
@@ -138,6 +241,13 @@ function buildShip(){
 			}
 		}
 	}
+    document.querySelector("#log3").setAttribute('value','done building ship');
+}
+function layFloor(x,z){
+    buildEntity({type:'a-plane',attributes:',floor'+x+'_'+z+','+(x*3)+' 0 '+(z*3)+',-90 0 0,,floor,#666,3,3'},document.querySelector('#a-scene'));
+    document.querySelector("#floor"+x+'_'+z).setAttribute('src', floorMat);
+    document.querySelector("#floor"+x+'_'+z).setAttribute('repeat', '10 10');
+    document.querySelector("#log3").setAttribute('value','tiled '+x+','+z);
 }
 function dwall(x,y,z,rotY){
 	var dwall=document.createElement('a-entity');
@@ -315,8 +425,6 @@ function draw(){
 	doorZ=exitPos[1]*3;
 	door(doorX-1.5,1,doorZ,0,'door');
 	escape(doorX, 0, doorZ);
-	//deleteWall('we'+doorZ+'_'+(width-1));
-
 	var c2 = document.getElementById("holocanvas");
 	var ctx2 = c2.getContext("2d");
 	ctx2.font = 300+'px serif';
@@ -456,24 +564,6 @@ function endLaser(id){
         el.parentNode.removeChild(el);
     }
 }
-/*
-function explode(){
-    zzfx(...[getVol()*2,,22,.01,.06,1.93,4,.7,,1,,,,.9,,.4,,.87,.04]);
-    var el = document.querySelector("#robot");
-    el.setAttribute('dead', true);
-    el.removeAttribute('animation__turnTo');
-    el.removeEventListener('animationcomplete__turnTo', nextStep);
-    el.removeAttribute('animation__moveTo');
-    el.removeEventListener('animationcomplete__moveTo', nextStep);
-    var elbot = document.querySelector("#robotrot");
-    elbot.setAttribute('animation__die', {property:'rotation',to:'90 0 0',loop:0,dur:500});
-    elbot.setAttribute('animation__diepos', {property:'position',to:'0 .3 0',loop:0,dur:500});
-    el = document.querySelector("#leftarm");
-    el.removeAttribute('animation');
-    el = document.querySelector("#rightarm");
-    el.removeAttribute('animation');
-}
-*/
 function fire(id){
     fireSound(id);
     laser(id);
@@ -517,11 +607,7 @@ function distance(pos1, pos2){
 }
 function hitPlayer(robotPos, lineEnd){
     var camera = document.querySelector("#rig");
-    //document.querySelector("#log").setAttribute('value', 'd2player='+distance(camera.object3D.position, robotPos));
-    if (distance(camera.object3D.position, robotPos) <= Math.round(lineEnd.z*100)/100){
-        return true;
-    }
-    return false;
+    return (distance(camera.object3D.position, robotPos) <= Math.round(lineEnd.z*100)/100)
 }
 function loadLevel(levelLocal){
     if (!loaded) {
@@ -532,11 +618,14 @@ function loadLevel(levelLocal){
         buildMap();
         buildShip();
         draw();
-        document.querySelector("#batteryParentUI").setAttribute('opacity', .7);
-        document.querySelector("#batteryUI").setAttribute('opacity', .7);
-
         document.querySelector("#rig").setAttribute('position', startX * 3 + ' 0 ' + startZ * 3);
         document.querySelector("#rig").setAttribute('rotation', '0 ' + rotY + ' 0');
+        buildEntity({type:'a-text',attributes:',batteryParentUI,-.3 .15 -.6,,.2 .2 .2,,,,,.7,,,,exo2semibold,BATTERY',children:[
+                {type:'a-plane',attributes:',,1.5 -.04 -.01,,,,#fff,1,.15,.4,,,,,,,,,,,,,,,,,,,,,,,,,shader:flat'},
+				{type:'a-plane',attributes:',batteryUI,1.5 -.04 0,,,,#ff0,1,.15,.8,,,,,,,,,,,,,,,,,,,,,,,,,shader:flat'}
+			]},document.querySelector("#camera"));
+        document.querySelector("#game").components.game.data.batteryUI=document.querySelector("#batteryUI");
+        document.querySelector("#game").components.game.data.batteryParentUI=document.querySelector("#batteryParentUI");
     }
 }
 
@@ -548,7 +637,10 @@ AFRAME.registerComponent('button', {
     init: function(){
         var el = this.el;
         this.data.level = parseInt(el.getAttribute('id').replace(/level/,''));
-        el.addEventListener('click', function(){loadLevel(el.components.button.data.level)});
+        el.addEventListener('click', function(){
+            document.querySelector("#rightController").removeAttribute('laser-controls');
+            loadLevel(el.components.button.data.level);
+        });
     }
 });
 AFRAME.registerComponent('game', {
@@ -559,15 +651,18 @@ AFRAME.registerComponent('game', {
 		batteryParentUI:{type:'selector'}
 	},
 	init: function() {
-        this.data.batteryUI = document.querySelector("#batteryUI");
-        this.data.batteryParentUI = document.querySelector("#batteryParentUI");
-		this.data.batteryParentUI.setAttribute('opacity',0);
-        this.data.batteryUI.setAttribute('opacity',0);
+        buildStars();
+        buildFloor();
 		this.data.battery = 100;
 		for(var levelId in levels){
-            buildEntity({type:'a-box',attributes:',level'+parseInt(levelId)+','+(levelId-.5)+' 1 -2,,,button,#992,.5,.3,,,,,,,,,,,.1',children:[{type:'a-text',attributes:',,0 0 .26,,.3 .3 .3,,,,,,,,,,LEVEL '+(parseInt(levelId)+1)}]},document.querySelector('#a-scene'));
+            buildEntity({type:'a-plane',attributes:',level'+parseInt(levelId)+','+(levelId-.8)+' 1 -2,,,button,#ff2,.5,.3,.5',children:[{type:'a-text',attributes:',,0 0 .02,,.3 .3 .3,,,,,,,,,exo2semibold,LEVEL '+(parseInt(levelId)+1)+',,align'}]},document.querySelector('#a-scene'));
 		}
-	},
+        var c=document.getElementById('stars');
+        var ctx=c.getContext('2d');
+        var stars = c.toDataURL("image/png");
+        document.querySelector("#image-360").setAttribute('src', stars);
+        loadLevel(1);
+    },
 	tick: function(){
 		this.data.timer++;
 		if (this.data.timer >= 10) {
@@ -575,8 +670,10 @@ AFRAME.registerComponent('game', {
 			this.data.timer = 0;
 			if(this.data.battery>100)this.data.battery=100;
 		}
-		this.data.batteryUI.setAttribute('scale',this.data.battery/100+' 1 1');
-		this.data.batteryUI.setAttribute('position',(1+(this.data.battery/100/2))+' '+this.data.batteryUI.object3D.position.y+' '+this.data.batteryUI.object3D.position.z);
+		if (this.data.batteryUI != null) {
+            this.data.batteryUI.setAttribute('scale', this.data.battery / 100 + ' 1 1');
+            this.data.batteryUI.setAttribute('position', (1 + (this.data.battery / 100 / 2)) + ' ' + this.data.batteryUI.object3D.position.y + ' ' + this.data.batteryUI.object3D.position.z);
+        }
 	}
 });
 AFRAME.registerComponent('right-controller', {
@@ -637,10 +734,10 @@ AFRAME.registerComponent('robot', {
 	tick: function() {
         this.data.timer++;
 		if (this.data.timer >= 100) {
-			el.setAttribute("visible", false);
+			this.el.setAttribute("visible", false);
 		}
 		if (this.data.timer >= 80) {
-			el.setAttribute("visible", true);
+			this.el.setAttribute("visible", true);
 			this.data.timer = 0;
 		}
 	},
@@ -714,7 +811,6 @@ AFRAME.registerComponent('wallscreen', {
 		}
 	}
 });
-
 AFRAME.registerComponent('gaze', {
   dependencies: ['raycaster'],
   schema:{
@@ -751,18 +847,18 @@ AFRAME.registerComponent('gaze', {
 </script>
   </head>
   <body bgcolor="#000" id="body">
+  	<canvas id="stars" style="display:none" height=4096 width=4096></canvas>
+  	<canvas id="nebula" style="display:none" height=1024 width=1024></canvas>
     <canvas id="gradient" style="display:none" height=1024 width=1024></canvas>
-    <canvas id="holocanvas" width="600" height="1200" style="display:none"></canvas>
+    <canvas id="holocanvas" style="display:none" width=600 height=1200></canvas>
+	<canvas id="c128" style="display:none" width=128 height=128></canvas>
  	<a-scene id='a-scene' background="color:#000" antialias='true'><!-- stats>-->
  		<a-entity id=game game></a-entity>
-    	<a-assets>
-			<img id="aurora" src="stars.jpg">
-		</a-assets>
 		<a-asset-item id="asteroid-obj" src="atiny.obj"></a-asset-item>
 		<a-asset-item id="asteroid-mtl" src="atiny.mtl"></a-asset-item>
 		<a-entity id="ambient" light="type:ambient;color:#fff;intensity:.4"></a-entity>
 		<a-entity light="type:directional;color:#fff;intensity:.5" rotation="-90 10 0"></a-entity>
-		<a-sky id="image-360" radius="360" src="#aurora" phi-start="140" segments-width=32 segments-height=10></a-sky>
+		<a-sky id="image-360" radius="360" phi-start="140" segments-width=32 segments-height=10></a-sky>
 
 		<a-entity id="asteroid3" asteroid animation="property:rotation;to:360 0 0;loop:true;dur:10000;easing:linear" animation__2="property:position;to:40 -1 -5;loop:true;dur:15000;easing:linear" position="-12 2 -10" obj-model="obj:#asteroid-obj;mtl:#asteroid-mtl"></a-entity>
 		<a-entity id="asteroid2" scale=".5 .5 .3" asteroid animation="property:rotation;to:360 360 0;loop:true;dur:9000;easing:linear" animation__2="property:position;to:40 -2 -12;loop:true;dur:5000;easing:linear" position="-12 -2 -12" obj-model="obj:#asteroid-obj;mtl:#asteroid-mtl"></a-entity>
@@ -770,15 +866,12 @@ AFRAME.registerComponent('gaze', {
 		<a-entity id="rig" cameraRig position="0 0 0" rotation="0 0 0">
 			<a-entity camera id="camera" wasd-controls="acceleration:150" look-controls="reverseMouseDrag: false" position="0 1.4 0">
 				<a-cylinder class="collidable" height=3 visible=true position="0 1 0" id="player" radius=".5"></a-cylinder>
-				<a-text id="batteryParentUI" value="BATTERY" position="-.3 .15 -.6" opacity=".7" scale=".2 .2 .2">
-					<a-plane id="batteryUI" position="1 0 0" width=1 height=.15 color=yellow material=shader:flat opacity=.7></a-plane>
-				</a-text>
-				<a-text position="0 -.3 -1" value="aoeu" id="log" text="anchor:center"></a-text>
-				<a-text position="0 -.2 -2" value="aoeu2" id="log2" text="anchor:center"></a-text>
-				<a-text position="0 -.3 -1" value="aoeuaoeu" id="log3" textAlign="center"></a-text>
+				<a-text position="0 -.3 -1" value=" " id="log" text="anchor:center"></a-text>
+				<a-text position="0 -.2 -2" value=" " id="log2" text="anchor:center"></a-text>
+				<a-text position="0 -.3 -1" value=" " id="log3" textAlign="center"></a-text>
 			</a-entity>
 			<a-entity id="leftController" static-body="shape: sphere; sphereRadius: 0.02;" oculus-touch-controls="hand: left" tracked-controls="" teleport-controls="button:trigger;objects:.floor;cameraRig:#rig"></a-entity>
-			<a-entity right-controller laser-controls="objects:.button;" id="rightController" static-body="shape: sphere; sphereRadius: 0.02;" oculus-touch-controls="hand: right" tracked-controls="button:trigger;objects:.button;"></a-entity>
+			<a-entity id="rightController" static-body="shape: sphere; sphereRadius: 0.02;" oculus-touch-controls="hand: right" tracked-controls="button:trigger;objects:.button;" right-controller laser-controls="objects:.button;"></a-entity>
 		</a-entity>
 		<!--<a-image id="holo" class="collidable" height=2 width=1 position="7 .8 3" opacity=".7" animation="property:rotation;from:0 -90 -5;to:0 -90 5;loop:true;dur:300;easing:linear;dir:alternate"></a-image>-->
 	</a-scene>
