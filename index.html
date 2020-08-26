@@ -1,12 +1,8 @@
 ﻿<html><head><title>Human Not Found</title><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-	<script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+	<script src="https://js13kgames.com/webxr-src/2020/aframe.js"></script>
 	<script src="aframe-teleport-controls-reduced.js"></script><script src="zzfx.micro.js"></script>
 <script>
 var junk = '';
-function shiphum(){
-	zzfx(...[.25,0,150,.5,3,.27,,1.3,,,,,,,,3.3,.15,.5,1]);
-}
-//setInterval(shiphum,1000);
 function shuffle(array) {
 	for (let i = array.length - 1; i > 0; i--) {
 		const j = Math.floor(Math.random() * (i + 1));
@@ -127,6 +123,18 @@ function buildStars() {
         ctx.drawImage(nebulaCanvas,x,y);
     }
 	noise(10000,4096,4096,55,55,55,200,200,200,ctx);
+    /*
+    var earth=new Image(64,64);
+    earth.src = 'earth.png';
+	nebulaCtx.drawImage(earth,0,0,64,64,0,0,1024,1024);
+    for (var i=0; i<20; i++){
+        delta=Math.round(Math.random()*150);
+        startX+=delta*((Math.random()*2)-1);
+        startY+=delta*((Math.random()*2)-1);
+        nebula(10,10,10,startX,startY,245);
+    }
+	document.querySelector("#planet").setAttribute('src',nebulaCanvas.toDataURL("image/png"));
+	*/
 }
 function buildFloor() {
     var c128=document.getElementById('c128');
@@ -266,7 +274,7 @@ function cryo(x,y,z){
 	buildEntity({type:'a-cylinder',attributes:',,'+x+' '+y+' '+z+',90 -90 0,,,#77f,,2,.3,,,,,,,,,,,.5,false,double,,,220,,,,,180'},document.querySelector('#a-scene'));
 	buildEntity({type:'a-box',attributes:',,'+x+' '+(y-.25)+' '+z+',0 90 0,,,#aaa,1.1,.5,,,,,,,,,,,2.1',children:[
 		{type:'a-box',attributes:',,,,,,#eee,.9,.55,,,,,,,,,,,1.8,,,,,,,,,,,,,,,shader:flat'},
-		{type:'a-text',attributes:',,.56 0 .4,0 90 0,,,,,,,,,,exo2semibold,MEDPOD 003'},
+		{type:'a-text',attributes:',,.6 0 .4,0 90 0,,,,,,,,,,exo2semibold,CRYOPOD 003'},
 	]},document.querySelector('#a-scene'));
 }
 function doorway(x,y,z){
@@ -324,47 +332,17 @@ function buildEntity(data, parent){
 	}
 }
 function transporter(x, y, z) {
-	var t = document.createElement('a-torus');
-	document.querySelector('#a-scene').appendChild(t);
-	t.setAttribute('id','transporterBase');
-	t.setAttribute('position', x + ' ' + y + ' ' + z);
-	t.setAttribute('radius', .6);
-	t.setAttribute('rotation', '90 0 0');
-	t.setAttribute('radius-tubular', .01);
-
-	var c=document.getElementById("gradient");
-	var ctx = c.getContext('2d');
-	var grd = ctx.createLinearGradient(0, 0, 0, 1024);
-	grd.addColorStop(.1, "rgba(22,22,255,1)");
-	grd.addColorStop(.8, "rgba(255,255,255,0");
-	ctx.fillStyle = grd;
-	ctx.fillRect(0, 0, 1024, 1024);
-	var gradientImage = c.toDataURL("image/png");
-
-	var cy = document.createElement('a-cylinder');
-	document.querySelector('#a-scene').appendChild(cy);
-	cy.setAttribute('id','transporter');
-	cy.setAttribute('position', x + ' ' + (y+1) + ' ' + z);
-	cy.setAttribute('radius', .6);
-	cy.setAttribute('height', 2);
-	cy.setAttribute('rotation', '180 0 0');
-	cy.setAttribute('transparent', true);
-	cy.setAttribute('open-ended', true);
-	cy.setAttribute('shader','flat');
-	cy.setAttribute('side','double');
-	cy.setAttribute('src', gradientImage);
-
-	var dt = document.createElement('a-entity');
-	document.querySelector('#a-scene').appendChild(dt);
-	dt.setAttribute('id','dt');
-	dt.setAttribute('height',.1);
-	dt.setAttribute('position', '0 20 -.5');
-	var panel = document.createElement('a-image');
-	panel.setAttribute('src',gradientImage);
-	panel.setAttribute('height',2);
-	panel.setAttribute('width',2);
-	panel.setAttribute('rotation','0 0 180');
-	dt.appendChild(panel);
+    buildEntity({type:'a-torus',attributes:',transporterBase,'+x+' '+y+' '+z+',90 0 0,,,,,,,,,,,,,,,,,.6,,,,,,,,,.01'},document.querySelector('#a-scene'));
+    var c=document.getElementById("gradient");
+    var ctx = c.getContext('2d');
+    var grd = ctx.createLinearGradient(0, 0, 0, 1024);
+    grd.addColorStop(.1, "rgba(22,22,255,1)");
+    grd.addColorStop(.8, "rgba(255,255,255,0");
+    ctx.fillStyle = grd;
+    ctx.fillRect(0, 0, 1024, 1024);
+    var gradientImage = c.toDataURL("image/png");
+    buildEntity({type:'a-cylinder',attributes:',transporter,'+x+' '+(y+1)+' '+z+',180 0 0,,,,,2,,,,,,,,,,,,.6,true,double,,,,,,,,,,,,shader:flat,true'},document.querySelector('#a-scene'));
+    document.querySelector("#transporter").setAttribute('src',gradientImage);
 }
 function buildBot(i,x,z){
 	buildEntity({type:'a-entity',attributes:',robot'+i+','+x+' 0 '+z+',0 180 0,,robot',children:[
@@ -610,12 +588,13 @@ function hitPlayer(robotPos, lineEnd){
 function loadLevel(levelLocal){
     if (!loaded) {
         loaded=true;
-        document.querySelector("#log").setAttribute('font', 'exo2semibold');
         document.querySelector("#log").setAttribute('text', 'value:LOADING...');
         level = levelLocal;
         buildMap();
         buildShip();
         draw();
+        document.querySelector("#titles").setAttribute('text','value:');
+        document.querySelector("#titles2").setAttribute('text','value:');
         document.querySelector("#rig").setAttribute('position', startX * 3 + ' 0 ' + startZ * 3);
         document.querySelector("#rig").setAttribute('rotation', '0 ' + rotY + ' 0');
         buildEntity({type:'a-text',attributes:',batteryParentUI,-.3 .15 -.6,,.2 .2 .2,,,,,.7,,,,exo2semibold,BATTERY',children:[
@@ -624,7 +603,6 @@ function loadLevel(levelLocal){
 			]},document.querySelector("#camera"));
         document.querySelector("#game").components.game.data.batteryUI=document.querySelector("#batteryUI");
         document.querySelector("#game").components.game.data.batteryParentUI=document.querySelector("#batteryParentUI");
-
         document.querySelector("#log").setAttribute('text', 'value:');
     }
 }
@@ -655,14 +633,14 @@ AFRAME.registerComponent('game', {
         buildFloor();
 		this.data.battery = 100;
 		for(var levelId in levels){
-            buildEntity({type:'a-plane',attributes:',level'+parseInt(levelId)+','+(levelId-.8)+' 1 -2,,,button,#ff2,.5,.3,.5',children:[{type:'a-text',attributes:',,0 0 .02,,.3 .3 .3,,,,,,,,,exo2semibold,LEVEL '+(parseInt(levelId)+1)+',,align'}]},document.querySelector('#a-scene'));
+            buildEntity({type:'a-plane',attributes:',level'+parseInt(levelId)+','+(-1+(levelId*.55))+' 1 -2,,,button,#ff2,.5,.3,.5',children:[{type:'a-text',attributes:',,0 0 .02,,.3 .3 .3,,,,,,,,,exo2semibold,LEVEL '+(parseInt(levelId)+1)+',,align'}]},document.querySelector('#a-scene'));
 		}
         var c=document.getElementById('stars');
         var ctx=c.getContext('2d');
         var stars = c.toDataURL("image/png");
         document.querySelector("#image-360").setAttribute('src', stars);
         document.querySelector("#image-360").setAttribute('repeat', '4 4');
-        loadLevel(1);
+        //loadLevel(1);
     },
 	tick: function(){
 		this.data.timer++;
@@ -806,6 +784,7 @@ AFRAME.registerComponent('wallscreen', {
 				el.setAttribute("visible", false);
 			}
 			if (this.data.timer >= 80) {
+                //zzfx(...[,,539,0,.04,.29,1,1.92,,,567,.02,.02,,,,.04])
 				el.setAttribute("visible", true);
 				this.data.timer = 0;
 			}
@@ -855,19 +834,20 @@ AFRAME.registerComponent('gaze', {
 	<canvas id="c128" style="display:none" width=128 height=128></canvas>
  	<a-scene id='a-scene' background="color:#000" antialias='true'><!-- stats>-->
  		<a-entity id=game game></a-entity>
+		<a-assets><img id="planet" src="earth.png"></a-assets>
 		<a-asset-item id="asteroid-obj" src="atiny.obj"></a-asset-item>
 		<a-asset-item id="asteroid-mtl" src="atiny.mtl"></a-asset-item>
 		<a-entity id="ambient" light="type:ambient;color:#fff;intensity:.4"></a-entity>
 		<a-entity light="type:directional;color:#fff;intensity:.5" rotation="-90 10 0"></a-entity>
 		<a-sky id="image-360" radius="360" phi-start="140" segments-width=32 segments-height=10></a-sky>
-
 		<a-entity id="asteroid3" asteroid animation="property:rotation;to:360 0 0;loop:true;dur:10000;easing:linear" animation__2="property:position;to:40 -1 -5;loop:true;dur:15000;easing:linear" position="-12 2 -10" obj-model="obj:#asteroid-obj;mtl:#asteroid-mtl"></a-entity>
 		<a-entity id="asteroid2" scale=".5 .5 .3" asteroid animation="property:rotation;to:360 360 0;loop:true;dur:9000;easing:linear" animation__2="property:position;to:40 -2 -12;loop:true;dur:5000;easing:linear" position="-12 -2 -12" obj-model="obj:#asteroid-obj;mtl:#asteroid-mtl"></a-entity>
-		<!-- <a-entity id="station" animation="property:rotation;to:0 360 0;loop:true;dur:240000;easing:linear"></a-entity>-->
 		<a-entity id="rig" cameraRig position="0 0 0" rotation="0 0 0">
 			<a-entity camera id="camera" wasd-controls="acceleration:150" look-controls="reverseMouseDrag: false" position="0 1.4 0">
 				<a-cylinder class="collidable" height=3 visible=true position="0 1 0" id="player" radius=".5"></a-cylinder>
-				<a-entity position="0 -.4 -1" id="log" text="value:C;align:center"></a-entity>
+				<a-entity position="0 .4 -1" id="titles" text="font:exo2semibold;value:HUMAN NOT FOUND;align:center" scale="2 2 2"></a-entity>
+				<a-entity position="0 .1 -1" id="titles2" text="wrap-count:60;font:exo2semibold;value:It never fails.\n\nAn emergency alert wakes you up from hibernation, still partially paralyzed from an epidural. Apparently, the ship is going to explode.\n\nGreat.\n\nEven better, the malfunctioning NurseBots insist you stay in the medbay.\nUse your handy personal teleporter to evade the bots and get to the evacuation transporter, to get to safety... before it's too late.;align:left"></a-entity>
+				<a-entity position="0 -.4 -.6" id="log" text="font:exo2semibold;value:;align:center"></a-entity>
 			</a-entity>
 			<a-entity id="leftController" static-body="shape: sphere; sphereRadius: 0.02;" oculus-touch-controls="hand: left" tracked-controls="" teleport-controls="button:trigger;objects:.floor;cameraRig:#rig"></a-entity>
 			<a-entity id="rightController" static-body="shape: sphere; sphereRadius: 0.02;" oculus-touch-controls="hand: right" tracked-controls="button:trigger;objects:.button;" right-controller laser-controls="objects:.button;"></a-entity>
