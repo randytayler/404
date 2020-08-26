@@ -32,23 +32,30 @@ function ss(val,id){
 }
 var height=4;
 var width=4;
-var holoImage,gameMap,gameMap2,floorMat;
-var map3 = ",,26,,;,,8,,,;133,5,,,;,,8,,;,,74,,";
-var map4 = ",,56,,;,,24,152,;31,24,25,24,24;,,24,88,;,,24,,";
-var map5 = ",,,,26,;,,26,,10,;133,5,,5,,5;,,74,,10;,,,,74,";
-var map6 = ",,,64,24,;,,24,,24,;31,24,24,24,25,24;,,24,,24,;,,,128,24,";
+var holoImage,gameMap,gameMap2,gameMap3,floorMat;
+var map1a = ",,26,,;,,8,,,;133,5,,,;,,8,,;,,74,,";
+var map1b = ",,56,,;,,24,152,;29,24,25,24,24;,,24,88,;,,24,,";
+var map1c = ",,,,;,,,,;2,,,,;,,,,;,,,,";
+var map2a = ",,,,26,;,,26,,10,;133,5,,5,,5;,,74,,10;,,,,74,";
+var map2b = ",,,64,24,;,,24,,24,;29,24,24,24,25,24;,,24,,24,;,,,128,24,";
+var map2c = ",,,,,;,,,,,;2,,,,,;,,,,,;,,,,,";
+var map3a = ",,16,,,;,,14,,,;128,7,,13,,,;,,11,,,;,,64,,,";
+var map3b = ",88,24,152,,,;88,88,25,152,152,;24,27,,25,24,;152,152,25,88,88,;,152,24,88,,";
+var map3c = ",,,,,,;,,1,,,,;,8,,,2,,;,,4,,,,;,,,,,,";
 var level,startX,startZ,rotY,currentTarget;
 var nextMove=Array(3);
 var nextTurn=Array(3);
 var fireListener=Array(3);
 var firing = false;
 var loaded = false;
-var levels=[[map3,map4,'0,2,90','4,2'],[map5,map6,'0,2,90','6,2']];
+var levels=[[map1a,map1b,map1c,'0,2,90','4,2'],[map2a,map2b,map2c,'0,2,90','6,2'],[map3a,map3b,map3c,'1,2,180','5,2']];
 var botPaths = [
 	[[{x:6,z:12},{rot:180},{x:6,z:0},{rot:0}]],
-	[[{x:6,z:3},{rot:0},{x:6,z:9},{rot:180}],[{x:12,z:0},{rot:0},{x:12,z:12},{rot:180}]]
+	[[{x:6,z:3},{rot:0},{x:6,z:9},{rot:180}],[{x:12,z:0},{rot:0},{x:12,z:12},{rot:180}]],
+	[[{x:0,z:4.5},{rot:360},{x:0,z:7.5},{rot:45},{x:4.5,z:12},{rot:90},{x:7.5,z:12},{rot:135},{x:12,z:7.5},{rot:180},{x:12,z:4.5},{rot:225},{x:7.5,z:0},{rot:270},{x:4.5,z:0},{rot:315}],
+        [{x:12,z:7.5},{rot:180},{x:12,z:4.5},{rot:225},{x:7.5,z:0},{rot:270},{x:4.5,z:0},{rot:315},{x:0,z:4.5},{rot:360},{x:0,z:7.5},{rot:45},{x:4.5,z:12},{rot:90},{x:7.5,z:12},{rot:135}]]
 ];
-var attnames = ['probability','id','position','rotation','scale','class','color','width','height','opacity','src','repeat','animation','font','value','baseline','anchor','intensity','distance','depth','radius','open-ended','side','segments-height','segments-radial','theta-length','segments','segments-width','segments-tubular','radius-tubular','arc','gaze','raycaster','line','material','transparent'];
+var attnames = ['probability','id','position','rotation','scale','class','color','width','height','opacity','src','repeat','animation','font','value','baseline','align','intensity','distance','depth','radius','open-ended','side','segments-height','segments-radial','theta-length','segments','segments-width','segments-tubular','radius-tubular','arc','gaze','raycaster','line','material','transparent'];
 function insideEllipse(rx, ry, r1, r2, mx, my){
     if (((((rx-mx)*(rx-mx))/(r1*r1)) + (((ry-my)*(ry-my))/(r2*r2))) < 1) return true;
     return false;
@@ -177,13 +184,14 @@ function buildFloor() {
 }
 function buildMap(){
 	var map = levels[level][0];
-	start=levels[level][2].split(',');
+	start=levels[level][3].split(',');
 	startX=parseInt(start[0]);
 	startZ=parseInt(start[1]);
 	rotY=parseInt(start[2]);
 	var rows = map.split(";");
 	gameMap = new Array(rows.length);
 	gameMap2 = new Array(rows.length);
+    gameMap3 = new Array(rows.length);
 	for (var row in rows){
 		cols = rows[row].split(",");
 		gameMap[row] = cols;
@@ -193,12 +201,18 @@ function buildMap(){
 		cols = rows[row].split(",");
 		gameMap2[row] = cols;
 	}
+    rows = levels[level][2].split(";");
+    for (var row in rows){
+        cols = rows[row].split(",");
+        gameMap3[row] = cols;
+    }
 }
 function buildShip(){
 	for (var row in gameMap){
 		for (var col in gameMap[row]){
 			walls = gameMap[row][col];
 			walls2 = gameMap2[row][col];
+            walls3 = gameMap3[row][col];
 			if (walls & 1){
 				wall(col*3, 1, -1.45 + row*3, 270, 'wn'+row+'_'+col);
 			}
@@ -227,10 +241,10 @@ function buildShip(){
 				light(col*3,row*3);
 			}
 			if (walls2 & 2){
-				doorway(1.45 + col*3, 1, row*3);
+                cryo(1+col*3, .5, row*3, 90);
 			}
 			if (walls2 & 4){
-				cryo(col*3, .5, 1+row*3);
+				cryo(col*3, .5, 1+row*3, 0);
 			}
 			if (walls2 & 8){
 				layFloor(col,row);
@@ -247,6 +261,18 @@ function buildShip(){
 			if (walls2 & 128){
 				dwall(col*3, 1, row*3, 45);
 			}
+			if (walls3 & 1){
+                doorway(col * 3, 1, row * 3 - 1.5,0);
+			}
+			if (walls3 & 2) {
+                doorway(col * 3 - 1.5, 1, row * 3,90);
+            }
+            if (walls3 & 4) {
+                doorway(col * 3, 1, row * 3 + 1.5,180);
+            }
+            if (walls3 & 8) {
+                doorway(col * 3 - 1.5, 1, row * 3,270);
+            }
 		}
 	}
     document.querySelector("#log").setAttribute('text','value:done building ship');
@@ -270,16 +296,18 @@ function table(x,y,z){
 	buildEntity({type:'a-box',attributes:'.3,,'+(x+.1)+' '+y+' '+(z+.1)+',0 30 0,,,#227,.15,.15,,,,,,,,,,,.1'},document.querySelector('#a-scene'));
 	buildEntity({type:'a-box',attributes:'.3,,'+(x-.1)+' '+(y+.1)+' '+(z-.2)+',0 -20 0,,,#727,.23,.15,,,,,,,,,,,.2'},document.querySelector('#a-scene'));
 }
-function cryo(x,y,z){
-	buildEntity({type:'a-cylinder',attributes:',,'+x+' '+y+' '+z+',90 -90 0,,,#77f,,2,.3,,,,,,,,,,,.5,false,double,,,220,,,,,180'},document.querySelector('#a-scene'));
-	buildEntity({type:'a-box',attributes:',,'+x+' '+(y-.25)+' '+z+',0 90 0,,,#aaa,1.1,.5,,,,,,,,,,,2.1',children:[
+function cryo(x,y,z,rotY){
+	buildEntity({type:'a-cylinder',attributes:',,'+x+' '+y+' '+z+',90 '+(rotY-90)+' 0,,,#77f,,2,.3,,,,,,,,,,,.5,false,double,,,220,,,,,180'},document.querySelector('#a-scene'));
+	buildEntity({type:'a-box',attributes:',,'+x+' '+(y-.25)+' '+z+',0 '+(rotY+90)+' 0,,,#aaa,1.1,.5,,,,,,,,,,,2.1',children:[
 		{type:'a-box',attributes:',,,,,,#eee,.9,.55,,,,,,,,,,,1.8,,,,,,,,,,,,,,,shader:flat'},
-		{type:'a-text',attributes:',,.6 0 .4,0 90 0,,,,,,,,,,exo2semibold,CRYOPOD 003'},
+		{type:'a-text',attributes:',,.55 0 .4,0 90 0,,,,,,,,,,exo2semibold,CRYOPOD 003'},
 	]},document.querySelector('#a-scene'));
 }
-function doorway(x,y,z){
-	buildEntity({type:'a-box',attributes:',,'+x+' '+y+' '+(z-1)+',0 90 0,,,,1,2,,,,,,,,,,,.15'},document.querySelector('#a-scene'));
-	buildEntity({type:'a-box',attributes:',,'+x+' '+y+' '+(z+1)+',0 90 0,,,,1,2,,,,,,,,,,,.15'},document.querySelector('#a-scene'));
+function doorway(x,y,z,rotY){
+    buildEntity({type:'a-entity',attributes:',,'+x+' '+y+' '+z+',0 '+rotY+' 0',children:[
+		{type:'a-box',attributes:',,1 0 0,,,,,1,2,,,,,,,,,,,.15'},
+		{type:'a-box',attributes:',,-1 0 0,,,,,1,2,,,,,,,,,,,.15'}
+	]},document.querySelector('#a-scene'));
 }
 function light(x,z){
 	var el = document.createElement('a-box');
@@ -322,7 +350,7 @@ function buildEntity(data, parent){
 	}
 	for(i=1;i<attributes.length;i++){
 		if (attributes[i]){
-			el.setAttribute(attnames[i],attributes[i].replace(/~/,','));
+			el.setAttribute(attnames[i],attributes[i].replace(/~/g,','));
 			if (attnames[i]=='class')el.setAttribute(attributes[i],'');
 		}
 	}
@@ -396,8 +424,8 @@ function draw(){
     for(var b in botPaths[level]) {
         buildBot(b, botPaths[level][b][0].x, botPaths[level][b][0].z);
     }
-	startPos=levels[level][2].split(',');
-	exitPos=levels[level][3].split(',');
+	startPos=levels[level][3].split(',');
+	exitPos=levels[level][4].split(',');
     doorX=exitPos[0]*3;
 	doorZ=exitPos[1]*3;
 	door(doorX-1.5,1,doorZ,0,'door');
@@ -635,12 +663,13 @@ AFRAME.registerComponent('game', {
 		for(var levelId in levels){
             buildEntity({type:'a-plane',attributes:',level'+parseInt(levelId)+','+(-1+(levelId*.55))+' 1 -2,,,button,#ff2,.5,.3,.5',children:[{type:'a-text',attributes:',,0 0 .02,,.3 .3 .3,,,,,,,,,exo2semibold,LEVEL '+(parseInt(levelId)+1)+',,align'}]},document.querySelector('#a-scene'));
 		}
+		buildEntity({type:'a-text',attributes:",instructions,-3 3.5 -8,,,,,,,,,,,exo2semibold,It never fails.\n\nAn emergency alert wakes you up from hibernation~ leaving you still partially paralyzed from an epidural. Apparently~ the ship is going to explode.\n\nGreat.\n\nEven better~ the malfunctioning NurseBots insist you stay in the medbay.\nSince you can't walk, use your handy personal teleporter to evade the bots and get to the evacuation transporter~ to port to safety... before it's too late."},document.querySelector("#a-scene"));
         var c=document.getElementById('stars');
         var ctx=c.getContext('2d');
         var stars = c.toDataURL("image/png");
         document.querySelector("#image-360").setAttribute('src', stars);
         document.querySelector("#image-360").setAttribute('repeat', '4 4');
-        //loadLevel(1);
+        loadLevel(2);
     },
 	tick: function(){
 		this.data.timer++;
@@ -739,7 +768,11 @@ AFRAME.registerComponent('robot', {
 			el.removeAttribute('animation__moveTo');
 			el.removeEventListener('animationcomplete__moveTo', nextMove[el.id]);
 			el.setAttribute('animation__turnTo', {pauseEvents:'foundPlayer',resumeEvents:'fired',property:'rotation',to:'0 ' + rot + ' 0',loop:false,dur:el.components.robot.data.speed,easing:'linear'});
-			el.addEventListener('animationcomplete__turnTo', nextTurn[el.id]=function(){el.components.robot.takeNextStep(el)});
+			el.addEventListener('animationcomplete__turnTo', nextTurn[el.id]=function(){
+			    if(Math.round(el.object3D.rotation.y*180/Math.PI)==360)el.object3D.rotation.y=0;
+                if(Math.round(el.object3D.rotation.y*180/Math.PI)==-360)el.object3D.rotation.y=0;
+				el.components.robot.takeNextStep(el)
+			});
 		}
 	},
 	moveTo: function(x,z,el){
@@ -846,7 +879,7 @@ AFRAME.registerComponent('gaze', {
 			<a-entity camera id="camera" wasd-controls="acceleration:150" look-controls="reverseMouseDrag: false" position="0 1.4 0">
 				<a-cylinder class="collidable" height=3 visible=true position="0 1 0" id="player" radius=".5"></a-cylinder>
 				<a-entity position="0 .4 -1" id="titles" text="font:exo2semibold;value:HUMAN NOT FOUND;align:center" scale="2 2 2"></a-entity>
-				<a-entity position="0 .1 -1" id="titles2" text="wrap-count:60;font:exo2semibold;value:It never fails.\n\nAn emergency alert wakes you up from hibernation, still partially paralyzed from an epidural. Apparently, the ship is going to explode.\n\nGreat.\n\nEven better, the malfunctioning NurseBots insist you stay in the medbay.\nUse your handy personal teleporter to evade the bots and get to the evacuation transporter, to get to safety... before it's too late.;align:left"></a-entity>
+				<a-entity position="0 .1 -1" id="titles2" text="wrap-count:60;font:exo2semibold;value:;align:left"></a-entity>
 				<a-entity position="0 -.4 -.6" id="log" text="font:exo2semibold;value:;align:center"></a-entity>
 			</a-entity>
 			<a-entity id="leftController" static-body="shape: sphere; sphereRadius: 0.02;" oculus-touch-controls="hand: left" tracked-controls="" teleport-controls="button:trigger;objects:.floor;cameraRig:#rig"></a-entity>
