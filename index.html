@@ -26,12 +26,12 @@ function ss(val,id){
 		[vol,,727,,.09,.19,,1.55,,,-100,.1,,,,.1,,,.03]
 	];
 	var titles = ['Darn...','Human not found.','Where\'d you go?','Uh-oh...','Please come back.',
-		'I found you.','Get back to sick bay!','Target found.','Return to cryo.','Targeting...','Teleporting.'
+		'I found you.','Get back to sick bay!','Target found.','Returning patient to medbay.','Targeting...','Teleporting.'
 	];
 	if (talking != val){
 		talking = val;
 		zzfx(...lines[val]);
-		document.querySelector("#log3").setAttribute('value',titles[val]);
+		document.querySelector("#log").setAttribute('text','value:'+titles[val]);
 	}
 }
 var height=4;
@@ -100,19 +100,19 @@ function buildStars() {
     var c=document.getElementById('stars');
     var ctx=c.getContext('2d');
     ctx.fillStyle = "rgba(0,0,0,255)";
-    ctx.fillRect( 0, 0, 4096, 4096 );
-    //noise(150000,4096,4096,15,15,35,0,0,0,ctx);
+    ctx.fillRect(0,0,1024,1024);
+    noise(10000,1024,1024,15,15,35,0,0,0,ctx);
     var nebulaCanvas=document.getElementById('nebula');
     var nebulaCtx = nebulaCanvas.getContext("2d");
-    /*
-    for (var j=0; j<50; j++){
+
+    for (var j=0; j<10; j++){
         nebulaCtx.clearRect(0,0,1024,1024);
         var startX = startY = 512;
         var delta=1;
         var r=Math.round(Math.random()*155);
         var g=Math.round(Math.random()*155);
         var b=Math.round(Math.random()*155);
-        for (var i=0; i<50; i++){
+        for (var i=0; i<10; i++){
             nebula(r,g,b,startX,startY,100);
             delta=Math.round(Math.random()*150)-75;
             startX+=delta*((Math.random()*2)-1);
@@ -122,11 +122,11 @@ function buildStars() {
             if(startY>950)startY=500;
             if(startY<50)startY=500;
         }
-        var x = Math.round(Math.random()*3596)-250;
-        var y = Math.round(Math.random()*3596)-250;
+        var x = Math.round(Math.random()*524)-250;
+        var y = Math.round(Math.random()*524)-250;
         ctx.drawImage(nebulaCanvas,x,y);
-    }*/
-   noise(10000,4096,4096,55,55,55,200,200,200,ctx);
+    }
+	noise(10000,4096,4096,55,55,55,200,200,200,ctx);
 }
 function buildFloor() {
     var c128=document.getElementById('c128');
@@ -241,13 +241,12 @@ function buildShip(){
 			}
 		}
 	}
-    document.querySelector("#log3").setAttribute('value','done building ship');
+    document.querySelector("#log").setAttribute('text','value:done building ship');
 }
 function layFloor(x,z){
     buildEntity({type:'a-plane',attributes:',floor'+x+'_'+z+','+(x*3)+' 0 '+(z*3)+',-90 0 0,,floor,#666,3,3'},document.querySelector('#a-scene'));
     document.querySelector("#floor"+x+'_'+z).setAttribute('src', floorMat);
     document.querySelector("#floor"+x+'_'+z).setAttribute('repeat', '10 10');
-    document.querySelector("#log3").setAttribute('value','tiled '+x+','+z);
 }
 function dwall(x,y,z,rotY){
 	var dwall=document.createElement('a-entity');
@@ -502,7 +501,6 @@ function collided(controllerX, controllerY, controllerZ, globalPos, target){
     var targetWidth = parseFloat(target.getAttribute('width'));
     var targetHeight = parseFloat(target.getAttribute('height'));
     var targetDepth = parseFloat(target.getAttribute('depth'));
-    document.querySelector("#log").setAttribute('value', targetWidth+' '+targetHeight+' '+targetDepth);
     if ((controllerX > (parseFloat(globalPos.x)  - targetWidth)) &&
         (controllerX < (parseFloat(globalPos.x)  + targetWidth)) &&
         (controllerY > (parseFloat(globalPos.y)  - targetHeight)) &&
@@ -613,7 +611,7 @@ function loadLevel(levelLocal){
     if (!loaded) {
         loaded=true;
         document.querySelector("#log").setAttribute('font', 'exo2semibold');
-        document.querySelector("#log").setAttribute('value', 'LOADING...');
+        document.querySelector("#log").setAttribute('text', 'value:LOADING...');
         level = levelLocal;
         buildMap();
         buildShip();
@@ -626,6 +624,8 @@ function loadLevel(levelLocal){
 			]},document.querySelector("#camera"));
         document.querySelector("#game").components.game.data.batteryUI=document.querySelector("#batteryUI");
         document.querySelector("#game").components.game.data.batteryParentUI=document.querySelector("#batteryParentUI");
+
+        document.querySelector("#log").setAttribute('text', 'value:');
     }
 }
 
@@ -661,6 +661,7 @@ AFRAME.registerComponent('game', {
         var ctx=c.getContext('2d');
         var stars = c.toDataURL("image/png");
         document.querySelector("#image-360").setAttribute('src', stars);
+        document.querySelector("#image-360").setAttribute('repeat', '4 4');
         loadLevel(1);
     },
 	tick: function(){
@@ -847,7 +848,7 @@ AFRAME.registerComponent('gaze', {
 </script>
   </head>
   <body bgcolor="#000" id="body">
-  	<canvas id="stars" style="display:none" height=4096 width=4096></canvas>
+  	<canvas id="stars" style="display:none" height=1024 width=1024></canvas>
   	<canvas id="nebula" style="display:none" height=1024 width=1024></canvas>
     <canvas id="gradient" style="display:none" height=1024 width=1024></canvas>
     <canvas id="holocanvas" style="display:none" width=600 height=1200></canvas>
@@ -866,9 +867,7 @@ AFRAME.registerComponent('gaze', {
 		<a-entity id="rig" cameraRig position="0 0 0" rotation="0 0 0">
 			<a-entity camera id="camera" wasd-controls="acceleration:150" look-controls="reverseMouseDrag: false" position="0 1.4 0">
 				<a-cylinder class="collidable" height=3 visible=true position="0 1 0" id="player" radius=".5"></a-cylinder>
-				<a-text position="0 -.3 -1" value=" " id="log" text="anchor:center"></a-text>
-				<a-text position="0 -.2 -2" value=" " id="log2" text="anchor:center"></a-text>
-				<a-text position="0 -.3 -1" value=" " id="log3" textAlign="center"></a-text>
+				<a-entity position="0 -.4 -1" id="log" text="value:C;align:center"></a-entity>
 			</a-entity>
 			<a-entity id="leftController" static-body="shape: sphere; sphereRadius: 0.02;" oculus-touch-controls="hand: left" tracked-controls="" teleport-controls="button:trigger;objects:.floor;cameraRig:#rig"></a-entity>
 			<a-entity id="rightController" static-body="shape: sphere; sphereRadius: 0.02;" oculus-touch-controls="hand: right" tracked-controls="button:trigger;objects:.button;" right-controller laser-controls="objects:.button;"></a-entity>
