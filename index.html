@@ -48,6 +48,7 @@ var nextTurn=Array(3);
 var fireListener=Array(3);
 var firing = false;
 var loaded = false;
+var done = false;
 var levels=[[map1a,map1b,map1c,'0,2,90','4,2'],[map2a,map2b,map2c,'0,2,90','6,2'],[map3a,map3b,map3c,'1,2,180','5,2']];
 var botPaths = [
 	[[{x:6,z:12},{rot:180},{x:6,z:0},{rot:0}]],
@@ -250,7 +251,7 @@ function buildShip(){
 				layFloor(col,row);
 			}
 			if (walls2 & 16){
-				buildEntity({type:'a-plane',attributes:',,'+col*3+' 2 '+row*3+',-270 0 0,,ceiling,#ccc,3,3'},document.querySelector('#a-scene'));
+				buildEntity({type:'a-plane',attributes:',,'+col*3+' 2 '+row*3+',-270 0 0,,ceiling,#ccc,3,3'},document.querySelector('#ship'));
 			}
 			if (walls2 & 32){
 				table(1.1+col*3,.8,row*3);//escape(x,y,z)?
@@ -277,37 +278,42 @@ function buildShip(){
 	}
     document.querySelector("#log").setAttribute('text','value:done building ship');
 }
+function buildButtons(){
+    for(var levelId in levels){
+        buildEntity({type:'a-plane',attributes:',level'+parseInt(levelId)+','+(-1+(levelId*.55))+' 1 -2,,,button,#ff2,.5,.3,.5',children:[{type:'a-text',attributes:',,0 0 .02,,.3 .3 .3,,,,,,,,,exo2semibold,LEVEL '+(parseInt(levelId)+1)}]},document.querySelector('#a-scene'));
+    }
+}
 function layFloor(x,z){
-    buildEntity({type:'a-plane',attributes:',floor'+x+'_'+z+','+(x*3)+' 0 '+(z*3)+',-90 0 0,,floor,#666,3,3'},document.querySelector('#a-scene'));
+    buildEntity({type:'a-plane',attributes:',floor'+x+'_'+z+','+(x*3)+' 0 '+(z*3)+',-90 0 0,,floor,#666,3,3'},document.querySelector('#ship'));
     document.querySelector("#floor"+x+'_'+z).setAttribute('src', floorMat);
     document.querySelector("#floor"+x+'_'+z).setAttribute('repeat', '10 10');
 }
 function dwall(x,y,z,rotY){
 	var dwall=document.createElement('a-entity');
-	document.querySelector('#a-scene').appendChild(dwall);
+	document.querySelector('#ship').appendChild(dwall);
 	wall(0,0,0,0,'',dwall);
 	dwall.setAttribute('scale','1 1 1.45');
 	dwall.setAttribute('position',x+' '+y+' '+z);
 	dwall.setAttribute('rotation','0 '+rotY+' 0');
 }
 function table(x,y,z){
-	buildEntity({type:'a-box',attributes:',,'+x+' '+y+' '+z+',,,,#aaa,.5,.05,,,,,,,,,,,1.1'},document.querySelector('#a-scene'));
-	buildEntity({type:'a-box',attributes:',,'+x+' '+(y-.39)+' '+z+',,,,#777,.1,.8,,,,,,,,,,,.1'},document.querySelector('#a-scene'));
-	buildEntity({type:'a-box',attributes:'.3,,'+(x+.1)+' '+y+' '+(z+.1)+',0 30 0,,,#227,.15,.15,,,,,,,,,,,.1'},document.querySelector('#a-scene'));
-	buildEntity({type:'a-box',attributes:'.3,,'+(x-.1)+' '+(y+.1)+' '+(z-.2)+',0 -20 0,,,#727,.23,.15,,,,,,,,,,,.2'},document.querySelector('#a-scene'));
+	buildEntity({type:'a-box',attributes:',,'+x+' '+y+' '+z+',,,,#aaa,.5,.05,,,,,,,,,,,1.1'},document.querySelector('#ship'));
+	buildEntity({type:'a-box',attributes:',,'+x+' '+(y-.39)+' '+z+',,,,#777,.1,.8,,,,,,,,,,,.1'},document.querySelector('#ship'));
+	buildEntity({type:'a-box',attributes:'.3,,'+(x+.1)+' '+y+' '+(z+.1)+',0 30 0,,,#227,.15,.15,,,,,,,,,,,.1'},document.querySelector('#ship'));
+	buildEntity({type:'a-box',attributes:'.3,,'+(x-.1)+' '+(y+.1)+' '+(z-.2)+',0 -20 0,,,#727,.23,.15,,,,,,,,,,,.2'},document.querySelector('#ship'));
 }
 function cryo(x,y,z,rotY){
-	buildEntity({type:'a-cylinder',attributes:',,'+x+' '+y+' '+z+',90 '+(rotY-90)+' 0,,,#77f,,2,.3,,,,,,,,,,,.5,false,double,,,220,,,,,180'},document.querySelector('#a-scene'));
+	buildEntity({type:'a-cylinder',attributes:',,'+x+' '+y+' '+z+',90 '+(rotY-90)+' 0,,,#77f,,2,.3,,,,,,,,,,,.5,false,double,,,220,,,,,180'},document.querySelector('#ship'));
 	buildEntity({type:'a-box',attributes:',,'+x+' '+(y-.25)+' '+z+',0 '+(rotY+90)+' 0,,,#aaa,1.1,.5,,,,,,,,,,,2.1',children:[
 		{type:'a-box',attributes:',,,,,,#eee,.9,.55,,,,,,,,,,,1.8,,,,,,,,,,,,,,,shader:flat'},
 		{type:'a-text',attributes:',,.55 0 .4,0 90 0,,,,,,,,,,exo2semibold,CRYOPOD 003'},
-	]},document.querySelector('#a-scene'));
+	]},document.querySelector('#ship'));
 }
 function doorway(x,y,z,rotY){
     buildEntity({type:'a-entity',attributes:',,'+x+' '+y+' '+z+',0 '+rotY+' 0',children:[
 		{type:'a-box',attributes:',,1 0 0,,,,,1,2,,,,,,,,,,,.15'},
 		{type:'a-box',attributes:',,-1 0 0,,,,,1,2,,,,,,,,,,,.15'}
-	]},document.querySelector('#a-scene'));
+	]},document.querySelector('#ship'));
 }
 function light(x,z){
 	var el = document.createElement('a-box');
@@ -317,7 +323,7 @@ function light(x,z){
 	el.setAttribute('depth', 1);
 	el.setAttribute('color', '#fff');
 	el.setAttribute('material', 'shader:flat');
-	document.querySelector("#a-scene").appendChild(el);
+	document.querySelector("#ship").appendChild(el);
 
 	var light = document.createElement('a-light');
 	light.setAttribute('type', 'point');
@@ -327,13 +333,23 @@ function light(x,z){
 	el.appendChild(light);
 }
 function escape(x, y, z) {
-	buildEntity({type:'a-plane',attributes:',,'+x+' 0 '+z+',-90 0 0,,floor,#666,3,3,,floor.png,10 10'},document.querySelector('#a-scene'));
-	buildEntity({type:'a-plane',attributes:',,'+x+' 2 '+z+',-270 0 0,,ceiling,#ccc,3,3'},document.querySelector('#a-scene'));
+    layFloor(x/3,z/3);
+	buildEntity({type:'a-plane',attributes:',,'+x+' 2 '+z+',-270 0 0,,ceiling,#ccc,3,3'},document.querySelector('#ship'));
 	wall(x, 1, -1.45 + z, 270, 'escaperoomn');
 	wall(x, 1, 1.45 + z, 90, 'escaperooms');
 	win(x+1.45, 1, z, 180, 'escaperoomw');
 	light(x,z);
 	transporter(x, 0, z);
+}
+function endGame(){
+	document.querySelector("#a-scene").removeChild(document.querySelector("#ship"));
+    document.querySelector("#camera").removeChild(document.querySelector("#timerUI"));
+    document.querySelector("#camera").removeChild(document.querySelector("#batteryParentUI"));
+    document.querySelector("#rig").setAttribute('position', '0 0 0');
+    document.querySelector("#rig").setAttribute('rotation', '0 0 0');
+    document.querySelector("#titles").setAttribute('text','value:YOU ARE DEAD.');
+    document.querySelector("#titles2").setAttribute('text','value:Your constituent particles have been converted directly to energy, in a very violent fashion.');
+    buildButtons();
 }
 function openDoor(){
 	var d = document.querySelector('#inner-door');
@@ -360,7 +376,7 @@ function buildEntity(data, parent){
 	}
 }
 function transporter(x, y, z) {
-    buildEntity({type:'a-torus',attributes:',transporterBase,'+x+' '+y+' '+z+',90 0 0,,,,,,,,,,,,,,,,,.6,,,,,,,,,.01'},document.querySelector('#a-scene'));
+    buildEntity({type:'a-torus',attributes:',transporterBase,'+x+' '+y+' '+z+',90 0 0,,,,,,,,,,,,,,,,,.6,,,,,,,,,.01'},document.querySelector('#ship'));
     var c=document.getElementById("gradient");
     var ctx = c.getContext('2d');
     var grd = ctx.createLinearGradient(0, 0, 0, 1024);
@@ -369,7 +385,7 @@ function transporter(x, y, z) {
     ctx.fillStyle = grd;
     ctx.fillRect(0, 0, 1024, 1024);
     var gradientImage = c.toDataURL("image/png");
-    buildEntity({type:'a-cylinder',attributes:',transporter,'+x+' '+(y+1)+' '+z+',180 0 0,,,,,2,,,,,,,,,,,,.6,true,double,,,,,,,,,,,,shader:flat,true'},document.querySelector('#a-scene'));
+    buildEntity({type:'a-cylinder',attributes:',transporter,'+x+' '+(y+1)+' '+z+',180 0 0,,,,,2,,,,,,,,,,,,.6,true,double,,,,,,,,,,,,shader:flat,true'},document.querySelector('#ship'));
     document.querySelector("#transporter").setAttribute('src',gradientImage);
 }
 function buildBot(i,x,z){
@@ -384,7 +400,7 @@ function buildBot(i,x,z){
 				{type:'a-box',attributes:',,0 .25 .25,,.3 .1 .1,,#f00'},
 			]},
 		]}
-	,document.querySelector("#a-scene"));
+	,document.querySelector("#ship"));
 	buildEntity({type:'a-entity',attributes:',headrobot'+i+',0 .8 0,,,,,,,,,,property:rotation;from:0 -15 0;to:0 15 0;loop:true;dur:1000;easing:linear;dir:alternate;pauseEvents:foundPlayer;resumeEvents:fired',
 		children:[
 		{type:'a-sphere',attributes:',eyerobot'+i+',0 .03 .22,,,,#fff,,,,,,,,,,,,,,.07,,8,,,,8,,,,,,,,shader:flat',children:[
@@ -448,7 +464,7 @@ function door(x, y, z, roty, id){
     buildEntity({type:'a-entity',attributes:','+id+','+x+' '+y+' '+z+',0 '+roty+' 0',children:[
 					{type:'a-box',attributes:',,0 0 1.2,,,collidable,#fff,.2,2,,,,,,,,,,,.6'},
 					{type:'a-box',attributes:',,0 0 -1.2,,,collidable,#fff,.2,2,,,,,,,,,,,.6'}
-				]},document.querySelector("#a-scene"));
+				]},document.querySelector("#ship"));
 	buildEntity({type:'a-entity',attributes:',innerdoor,'+x+' '+y+' '+z+',0 '+roty+' 0,,door',children:[
 					{type:'a-cylinder',attributes:',hitbox,-.01 0 .75,0 0 90,,,#900,,.12,,,,,,,,,,,,.15',children:[
 						{type:'a-text',attributes:',,.02 .07 -.12,-90 270 0,.4 .4 .4,,,,,,,,,exo2semibold,OPEN'},
@@ -459,7 +475,7 @@ function door(x, y, z, roty, id){
 					{type:'a-box',attributes:',,0 -.8 0,,,,#999,.08,.5,,,,,,,,,,,1.4'},
 					{type:'a-plane',attributes:',,0 .2 0,180 90 0,,collidable,#00f,1.4,1.5,.8,,,,,,,,,,,,,double,,,,,,,,,,,,,true'},
 					{type:'a-text',attributes:',,-.01 .5 0,0 270 0,2 2.5 2,,#fff,3,,,,,,exo2semibold,EXIT,top,center'},
-                ]},document.querySelector("#a-scene"));
+                ]},document.querySelector("#ship"));
 }
 function win(x, y, z, roty, id) {
     buildEntity({type:'a-entity',attributes:','+id+','+x+' '+y+' '+z+',0 '+roty+' 0',children:[
@@ -479,13 +495,13 @@ function win(x, y, z, roty, id) {
             {type:'a-plane',attributes:'.5,,-.102 0 -1.05,0 270 0,,,#999,.1,1.55'},
             {type:'a-plane',attributes:',,-.102 -.725 -.12,0 270 0,,,#999,1.95,.1'},
         ]
-    },document.querySelector('#a-scene'));
+    },document.querySelector('#ship'));
 }
 function shouldAddEntity(prob){
     return Math.random()>=prob;
 }
 function wall(x, y, z, roty, id, parent) {
-    if(!parent)parent=document.querySelector("#a-scene");
+    if(!parent)parent=document.querySelector("#ship");
     buildEntity({type:'a-box',attributes:','+id+','+x+' '+y+' '+z+',0 '+roty+' 0,,collidable,,.1,2,,,,,,,,,,,3',children:[
             {type:'a-plane',attributes:'.5,,.055 0 .3,0 90 0,,,#444,.3,2'},
             {type:'a-plane',attributes:'.5,,.055 0 .6,0 90 0,,,#444,.1,2'},
@@ -629,12 +645,41 @@ function loadLevel(levelLocal){
                 {type:'a-plane',attributes:',,1.5 -.04 -.01,,,,#fff,1,.15,.4,,,,,,,,,,,,,,,,,,,,,,,,,shader:flat'},
 				{type:'a-plane',attributes:',batteryUI,1.5 -.04 0,,,,#ff0,1,.15,.8,,,,,,,,,,,,,,,,,,,,,,,,,shader:flat'}
 			]},document.querySelector("#camera"));
+
+        buildEntity({type:'a-text',attributes:',timerUI,.2 .15 -.6,,.2 .2 .2,timer,,,,.7,,,,exo2semibold,1:30'},document.querySelector("#camera"));
         document.querySelector("#game").components.game.data.batteryUI=document.querySelector("#batteryUI");
         document.querySelector("#game").components.game.data.batteryParentUI=document.querySelector("#batteryParentUI");
         document.querySelector("#log").setAttribute('text', 'value:');
     }
 }
-
+AFRAME.registerComponent('timer', {
+    schema:{
+        lastTime:{type:'float'},
+        timeLeft:{type:'int',default:10},
+		ui:{type:'selector'}
+	},
+	init: function(){
+        var el = this.el;
+        this.data.ui = el;
+        this.data.lastTime = Math.floor(Date.now()/1000);
+	},
+	tick: function(){
+		var newTime = Math.floor(Date.now()/1000);
+		if (newTime > this.data.lastTime) {
+		    var timePassed = this.data.timeLeft - (newTime-this.data.lastTime);
+		    if (timePassed <= 10) this.data.ui.setAttribute('color', '#f00');
+            this.data.timeLeft = timePassed;
+            if (timePassed < 0 && !done) {
+                endGame();
+			}
+		    this.data.lastTime = newTime;
+		    var minutes = Math.floor(timePassed/60);
+		    var seconds = timePassed % 60;
+		    if (seconds < 10) seconds = '0' + seconds;
+		    this.data.ui.setAttribute('value', minutes+':'+seconds);
+		}
+	}
+});
 AFRAME.registerComponent('button', {
     schema:{
         id:{type:'string'},
@@ -659,17 +704,15 @@ AFRAME.registerComponent('game', {
 	init: function() {
         buildStars();
         buildFloor();
+        buildButtons();
 		this.data.battery = 100;
-		for(var levelId in levels){
-            buildEntity({type:'a-plane',attributes:',level'+parseInt(levelId)+','+(-1+(levelId*.55))+' 1 -2,,,button,#ff2,.5,.3,.5',children:[{type:'a-text',attributes:',,0 0 .02,,.3 .3 .3,,,,,,,,,exo2semibold,LEVEL '+(parseInt(levelId)+1)+',,align'}]},document.querySelector('#a-scene'));
-		}
 		buildEntity({type:'a-text',attributes:",instructions,-3 3.5 -8,,,,,,,,,,,exo2semibold,It never fails.\n\nAn emergency alert wakes you up from hibernation~ leaving you still partially paralyzed from an epidural. Apparently~ the ship is going to explode.\n\nGreat.\n\nEven better~ the malfunctioning NurseBots insist you stay in the medbay.\nSince you can't walk, use your handy personal teleporter to evade the bots and get to the evacuation transporter~ to port to safety... before it's too late."},document.querySelector("#a-scene"));
         var c=document.getElementById('stars');
         var ctx=c.getContext('2d');
         var stars = c.toDataURL("image/png");
         document.querySelector("#image-360").setAttribute('src', stars);
         document.querySelector("#image-360").setAttribute('repeat', '4 4');
-        loadLevel(2);
+        //loadLevel(2);
     },
 	tick: function(){
 		this.data.timer++;
@@ -875,6 +918,7 @@ AFRAME.registerComponent('gaze', {
 		<a-sky id="image-360" radius="360" phi-start="140" segments-width=32 segments-height=10></a-sky>
 		<a-entity id="asteroid3" asteroid animation="property:rotation;to:360 0 0;loop:true;dur:10000;easing:linear" animation__2="property:position;to:40 -1 -5;loop:true;dur:15000;easing:linear" position="-12 2 -10" obj-model="obj:#asteroid-obj;mtl:#asteroid-mtl"></a-entity>
 		<a-entity id="asteroid2" scale=".5 .5 .3" asteroid animation="property:rotation;to:360 360 0;loop:true;dur:9000;easing:linear" animation__2="property:position;to:40 -2 -12;loop:true;dur:5000;easing:linear" position="-12 -2 -12" obj-model="obj:#asteroid-obj;mtl:#asteroid-mtl"></a-entity>
+		<a-entity id="ship"></a-entity>
 		<a-entity id="rig" cameraRig position="0 0 0" rotation="0 0 0">
 			<a-entity camera id="camera" wasd-controls="acceleration:150" look-controls="reverseMouseDrag: false" position="0 1.4 0">
 				<a-cylinder class="collidable" height=3 visible=true position="0 1 0" id="player" radius=".5"></a-cylinder>
