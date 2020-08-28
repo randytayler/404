@@ -212,6 +212,24 @@ function paintEarth(){
     ctx.drawImage(nebulaCanvas,100,300);
     document.querySelector("#winplanet").setAttribute('src',c.toDataURL("image/png"));
 }
+function asteroids(){
+    for(var j=-1;j<=1;j+=2) {
+        for (var i = 1; i <= 5; i++) {
+            var x = j<0?(-2*i-5):(2*i+20);
+            var y = Math.random()*10-5;
+            var z = Math.random()*15+10-i*2;
+            var xs = Math.random() + .5;
+            var ys = Math.random() + .5;
+            var zs = Math.random() + .5;
+            buildEntity({
+                type: 'a-sphere',
+                attributes: ',asteroid' + i + '_'+j+',' + x + ' ' + y + ' ' + z + ',,'+xs+' '+ys+' '+zs+',,#111,,,,,,,,,,,,,,,,,4,,,,4'
+            }, document.querySelector("#a-scene"));
+            document.querySelector("#asteroid"+i+'_'+j).setAttribute('animation', 'property:rotation;to:360 0 0;loop:true;dur:'+(i*3000)+';easing:linear');
+            document.querySelector("#asteroid"+i+'_'+j).setAttribute('animation__2', 'property:position;from:'+x+' '+y+' '+z+';to:'+x+' '+y+' -15;loop:true;dur:'+(i*3000)+';easing:linear');
+        }
+    }
+}
 function buildFloor() {
     var c128=document.getElementById('c128');
     var ctx=c128.getContext('2d');
@@ -533,11 +551,6 @@ function draw(){
 	ctx2.fillText('🙋️',300,400);
 	holoImage = c2.toDataURL("image/png");
 	//document.querySelector('#holo').setAttribute('src', holoImage);
-
-	//ctx2.clearRect(0,0,600,1200);
-	//ctx2.fillText('⚡️',300,400);
-	//holoImage = c2.toDataURL("image/png");
-	//document.querySelector('#batteryParentUI').setAttribute('src', holoImage);
 }
 function deleteWall(name){if(document.querySelector("#"+name))document.querySelector("#"+name).parentNode.removeChild(document.querySelector("#"+name));}
 function door(x, y, z, roty, id){
@@ -784,6 +797,7 @@ AFRAME.registerComponent('game', {
 	},
 	init: function() {
         buildStars();
+        asteroids();
         buildFloor();
         buildButtons();
 		this.data.battery = 100;
@@ -793,7 +807,7 @@ AFRAME.registerComponent('game', {
         var stars = c.toDataURL("image/png");
         document.querySelector("#image-360").setAttribute('src', stars);
         document.querySelector("#image-360").setAttribute('repeat', '4 4');
-        //loadLevel(2);
+        loadLevel(2);
     },
 	tick: function(){
 		this.data.timer++;
@@ -987,15 +1001,12 @@ AFRAME.registerComponent('gaze', {
     <canvas id="gradient" style="display:none" height=1024 width=1024></canvas>
     <canvas id="holocanvas" style="display:none" width=600 height=1200></canvas>
 	<canvas id="c128" style="display:none" width=128 height=128></canvas>
- 	<a-scene id='a-scene' background="color:#000" antialias='true'>
+ 	<a-scene id='a-scene' background="color:#000" antialias='true' stats>
  		<a-entity id=game game></a-entity>
 		<a-assets><img id="planet" src="earth.png"></a-assets>
 		<a-entity id="ambient" light="type:ambient;color:#fff;intensity:.4"></a-entity>
 		<a-entity light="type:directional;color:#fff;intensity:.5" rotation="-90 10 0"></a-entity>
 		<a-sky id="image-360" radius="360" phi-start="140" segments-width=32 segments-height=10></a-sky>
-		<a-sphere id="asteroid4" segments-height=6 segments-width=8 animation="property:rotation;to:360 0 0;loop:true;dur:10000;easing:linear" animation__2="property:position;from:-10 0 -5;to:10 0 -5;loop:true;dur:15000;easing:linear" scale="1 1 1.5" position="4 0 -5" color="#111"></a-sphere>
-		<!--<a-entity id="asteroid3" animation="property:rotation;to:360 0 0;loop:true;dur:10000;easing:linear" animation__2="property:position;to:40 -1 -5;loop:true;dur:15000;easing:linear" position="-12 2 -10" obj-model="obj:#asteroid-obj;mtl:#asteroid-mtl"></a-entity>
-		<a-entity id="asteroid2" scale=".5 .5 .3" animation="property:rotation;to:360 360 0;loop:true;dur:9000;easing:linear" animation__2="property:position;to:40 -2 -12;loop:true;dur:5000;easing:linear" position="-12 -2 -12" obj-model="obj:#asteroid-obj;mtl:#asteroid-mtl"></a-entity>-->
 		<a-entity id="ship"></a-entity>
 		<a-entity id="rig" cameraRig position="0 0 0" rotation="0 0 0">
 			<a-entity camera id="camera" wasd-controls="acceleration:150" look-controls="reverseMouseDrag: false" position="0 1.4 0">
