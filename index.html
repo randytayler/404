@@ -213,8 +213,8 @@ function paintEarth(){
     document.querySelector("#winplanet").setAttribute('src',c.toDataURL("image/png"));
 }
 function asteroids(){
-    for(var j=-1;j<=1;j+=2) {
-        for (var i = 1; i <= 5; i++) {
+    for(var j=-1;j<=1;j+=2){
+        for(var i = 1; i <= 5; i++){
             var x = j<0?(-2*i-5):(2*i+20);
             var y = Math.random()*10-5;
             var z = Math.random()*15+10-i*2;
@@ -362,11 +362,11 @@ function buildShip(){
             }
 		}
 	}
-    document.querySelector("#log").setAttribute('text','value:done building ship');
+    document.querySelector("#log").setAttribute('text','value:Time to wake up...');
 }
 function buildButtons(){
     for(var levelId in levels){
-        buildEntity({type:'a-plane',attributes:',level'+parseInt(levelId)+','+(-1+(levelId*.55))+' 1 -2,,,button,#ff2,.5,.1,.5',children:[{type:'a-text',attributes:',,-.1 .015 .02,,.3 .3 .3,,,,,,,,,exo2semibold,LEVEL '+(parseInt(levelId)+1)}]},document.querySelector('#a-scene'));
+        buildEntity({type:'a-plane',attributes:',level'+parseInt(levelId)+','+(-1+(levelId*.55))+' 1 -2,,,button,#ff2,.5,.1,.5',children:[{type:'a-text',attributes:',,0 .015 .02,,.3 .3 .3,,,,,,,,,exo2semibold,LEVEL '+(parseInt(levelId)+1)+',,center'}]},document.querySelector('#a-scene'));
     }
 }
 function layFloor(x,z){
@@ -427,13 +427,17 @@ function escape(x, y, z) {
 	light(x,z);
 	transporter(x, 0, z);
 }
+function newgame(){
+    buildEntity({type:'a-text',attributes:",instructions,-8 0 0,0 90 0,,,#ffff82,,,,,,,exo2semibold,It never fails.\n\nAn emergency alert wakes you up from hibernation~ leaving you still partially paralyzed from an epidural. Apparently~ the ship is going to explode any minute.\n\nGreat.\n\nEven better~ the malfunctioning NurseBots insist you stay in the medbay.\n\nSince you can't walk~ use your handy personal teleporter to evade the bots and get to the evacuation transporter~ to port to the nearby planet's surface before it's too late."},document.querySelector("#a-scene"));
+    buildButtons();
+}
 function endGame(){
 	document.querySelector("#a-scene").removeChild(document.querySelector("#ship"));
     document.querySelector("#camera").removeChild(document.querySelector("#timerUI"));
     document.querySelector("#camera").removeChild(document.querySelector("#batteryParentUI"));
     document.querySelector("#rig").setAttribute('position', '0 0 0');
     document.querySelector("#rig").setAttribute('rotation', '0 0 0');
-    document.querySelector("#titles").setAttribute('text','value:YOU ARE DEAD.');
+    document.querySelector("#title1").setAttribute('text','value:YOU ARE DEAD.');
     document.querySelector("#titles2").setAttribute('text','value:Your constituent particles have been converted directly to energy, in a very violent fashion.');
     buildButtons();
 }
@@ -443,7 +447,7 @@ function win(){
     document.querySelector("#camera").removeChild(document.querySelector("#batteryParentUI"));
     document.querySelector("#rig").setAttribute('position', '0 0 0');
     document.querySelector("#rig").setAttribute('rotation', '0 0 0');
-    document.querySelector("#titles").setAttribute('text',"value:HOME SWEET HOME.");
+    document.querySelector("#title1").setAttribute('text',"value:HOME SWEET HOME.");
     document.querySelector("#titles2").setAttribute('text',"value:Well, it's SOMEbody's home, at least. Hope this planet is friendly.");
     buildEntity({type:'a-sphere',attributes:',winplanet,0 0 -1000,0 0 10,50 50 50,,,,,,,2 1,property:rotation;to:0 360 10;loop:true;dur:180000;easing:linear'},document.querySelector("#a-scene"));
     paintEarth();
@@ -730,7 +734,10 @@ function loadLevel(levelLocal){
         buildMap();
         buildShip();
         draw();
-        document.querySelector("#titles").setAttribute('text','value:');
+        document.querySelector("#newgame").parentNode.removeChild(document.querySelector("#newgame"));
+        document.querySelector("#title1").setAttribute('text','value:');
+        document.querySelector("#title2").setAttribute('text','value:');
+        document.querySelector("#title3").setAttribute('text','value:');
         document.querySelector("#titles2").setAttribute('text','value:');
         document.querySelector("#rig").setAttribute('position', startX * 3 + ' 0 ' + startZ * 3);
         document.querySelector("#rig").setAttribute('rotation', '0 ' + rotY + ' 0');
@@ -781,11 +788,18 @@ AFRAME.registerComponent('button', {
 	},
     init: function(){
         var el = this.el;
-        this.data.level = parseInt(el.getAttribute('id').replace(/level/,''));
-        el.addEventListener('click', function(){
-            document.querySelector("#rightController").removeAttribute('laser-controls');
-            loadLevel(el.components.button.data.level);
-        });
+        if (el.getAttribute('id')=='newgame'){
+            el.addEventListener('click', function(){
+                document.querySelector("#rightController").removeAttribute('laser-controls');
+                newgame();
+            });
+		} else {
+			this.data.level = parseInt(el.getAttribute('id').replace(/level/,''));
+			el.addEventListener('click', function(){
+				document.querySelector("#rightController").removeAttribute('laser-controls');
+				loadLevel(el.components.button.data.level);
+			});
+        }
     }
 });
 AFRAME.registerComponent('game', {
@@ -799,15 +813,14 @@ AFRAME.registerComponent('game', {
         buildStars();
         asteroids();
         buildFloor();
-        buildButtons();
+        buildEntity({type:'a-plane',attributes:',newgame,-.45 1 -2,,,button,#ff2,.5,.1,.5',children:[{type:'a-text',attributes:',,0 .015 .02,,.3 .3 .3,,,,,,,,,exo2semibold,NEW GAME,,center'}]},document.querySelector('#a-scene'));
 		this.data.battery = 100;
-		buildEntity({type:'a-text',attributes:",instructions,-3 3.5 -8,,,,,,,,,,,exo2semibold,It never fails.\n\nAn emergency alert wakes you up from hibernation~ leaving you still partially paralyzed from an epidural. Apparently~ the ship is going to explode any minute.\n\nGreat.\n\nEven better~ the malfunctioning NurseBots insist you stay in the medbay.\n\nSince you can't walk~ use your handy personal teleporter to evade the bots and get to the evacuation transporter~ to port to the nearby planet's surface before it's too late."},document.querySelector("#a-scene"));
-        var c=document.getElementById('stars');
+		var c=document.getElementById('stars');
         var ctx=c.getContext('2d');
         var stars = c.toDataURL("image/png");
         document.querySelector("#image-360").setAttribute('src', stars);
         document.querySelector("#image-360").setAttribute('repeat', '4 4');
-        loadLevel(2);
+        //loadLevel(2);
     },
 	tick: function(){
 		this.data.timer++;
@@ -1008,12 +1021,14 @@ AFRAME.registerComponent('gaze', {
 		<a-entity light="type:directional;color:#fff;intensity:.5" rotation="-90 10 0"></a-entity>
 		<a-sky id="image-360" radius="360" phi-start="140" segments-width=32 segments-height=10></a-sky>
 		<a-entity id="ship"></a-entity>
-		<a-entity id="rig" cameraRig position="0 0 0" rotation="0 0 0">
+		<a-entity id="rig" cameraRig position="0 0 0" rotation="0 90 0">
 			<a-entity camera id="camera" wasd-controls="acceleration:150" look-controls="reverseMouseDrag: false" position="0 1.4 0">
 				<a-cylinder class="collidable" height=3 visible=true position="0 1 0" id="player" radius=".5"></a-cylinder>
-				<a-entity position="0 .4 -1" id="titles" text="font:exo2semibold;value:HUMAN NOT FOUND;align:center" scale="2 2 2"></a-entity>
-				<a-entity position="0 .1 -1" id="titles2" text="wrap-count:60;font:exo2semibold;value:;align:center"></a-entity>
-				<a-entity position="0 -.4 -.6" id="log" text="font:exo2semibold;value:;align:center"></a-entity>
+				<a-entity position="0 .3 -100" id="title1" color="#ffff82" text="font:exo2semibold;align:center;value:HUMAN" scale="3 3 3" animation="property:position;to:0 .3 -1;dur:2000"></a-entity>
+				<a-entity position="0 .19 -100" id="title2" color="#ffff82" text="font:exo2semibold;align:center;value:NOT" scale="2 2 2" animation="property:position;to:0 .19 -1;dur:2000"></a-entity>
+				<a-entity position="0 .1 -100" id="title3" color="#ffff82" text="font:exo2semibold;align:center;value:FOUND" scale="3 3 3" animation="property:position;to:0 .1 -1;dur:2000"></a-entity>
+				<a-entity position="0 -.1 100" id="titles2" color="#ffff82" text='wrap-count:60;font:exo2semibold;align:center;value:In space, no one can hear you scream "This sucks!"' animation="property:position;to:0 -.1 -1;dur:2500"></a-entity>
+				<a-entity position="0 -.2 -.6" id="log" text="font:exo2semibold;value:;align:center"></a-entity>
 			</a-entity>
 			<a-entity id="leftController" static-body="shape: sphere; sphereRadius: 0.02;" oculus-touch-controls="hand: left" tracked-controls="" teleport-controls="button:trigger;objects:.floor;cameraRig:#rig"></a-entity>
 			<a-entity id="rightController" static-body="shape: sphere; sphereRadius: 0.02;" oculus-touch-controls="hand: right" tracked-controls="button:trigger;objects:.button;" right-controller laser-controls="objects:.button;"></a-entity>
