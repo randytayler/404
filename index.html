@@ -325,7 +325,7 @@ function buildButtons(){
     document.querySelector("#rightController").setAttribute('laser-controls',"objects:.button;");
 }
 function layFloor(x,z){
-    buildEntity({type:'a-plane',attributes:',floor'+x+'_'+z+','+(x*3)+' 0 '+(z*3)+',-90 0 0,,floor,#666,3,3'},document.querySelector('#ship'));
+    buildEntity({type:'a-box',attributes:',floor'+x+'_'+z+','+(x*3)+' 0 '+(z*3)+',0 0 0,,collidable,#666,3,.01,,,,,,,,,,,3'},document.querySelector('#ship'));
     document.querySelector("#floor"+x+'_'+z).setAttribute('src', floorMat);
     document.querySelector("#floor"+x+'_'+z).setAttribute('repeat', '10 10');
 }
@@ -352,8 +352,8 @@ function cryo(x,y,z,rotY){
 }
 function doorway(x,y,z,rotY){
     buildEntity({type:'a-entity',attributes:',,'+x+' '+y+' '+z+',0 '+rotY+' 0',children:[
-		{type:'a-box',attributes:',,1 0 0,,,,,1,2,,,,,,,,,,,.15'},
-		{type:'a-box',attributes:',,-1 0 0,,,,,1,2,,,,,,,,,,,.15'}
+		{type:'a-box',attributes:',,1 0 0,,,collidable,,1,2,,,,,,,,,,,.15'},
+		{type:'a-box',attributes:',,-1 0 0,,collidable,,,1,2,,,,,,,,,,,.15'}
 	]},document.querySelector('#ship'));
 }
 function light(x,z){
@@ -787,6 +787,7 @@ AFRAME.registerComponent('game', {
         var stars = c.toDataURL("image/png");
         document.querySelector("#image-360").setAttribute('src', stars);
         document.querySelector("#image-360").setAttribute('repeat', '4 4');
+        loadLevel(2);
     },
 	tick: function(){
 		this.data.timer++;

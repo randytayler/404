@@ -49,7 +49,7 @@
 			button: {default: 'xbutton', oneOf: ['xbutton','trigger']},
 			startEvents: {type: 'array'},
 			endEvents: {type: 'array'},
-			collisionEntities: {default: ''},
+			collisionEntities: {default: '.collidable'},
 			hitEntity: {type: 'selector'},
 			cameraRig: {type: 'selector'},
 			teleportOrigin: {type: 'selector'},
@@ -314,7 +314,6 @@
 				}).filter(function (n) { return n; });
 				meshes = meshes.length ? meshes : this.defaultCollisionMeshes;
 			}
-			console.log(meshes);
 			var intersects = this.raycaster.intersectObjects(meshes, true);
 			if (intersects.length > 0 && !this.hit &&
 					this.isValidNormalsAngle(intersects[0].face.normal)) {
