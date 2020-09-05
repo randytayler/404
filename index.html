@@ -1,6 +1,6 @@
 ﻿<html><head><title>Human Not Found</title><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<script src="https://js13kgames.com/webxr-src/2020/aframe.js"></script>
-	<script src="aframe-teleport-controls-reduced.js"></script><script src="zzfx.micro.js"></script>
+	<script src="at.js"></script><script src="zzfx.micro.js"></script>
 <script>
 var junk = '';
 function shuffle(array) {
@@ -139,77 +139,31 @@ function buildStars() {
     }
 	noise(10000,4096,4096,55,55,55,200,200,200,ctx);
 }
-function land(ctx,x,y,minX,minY,midX,midY,maxX,maxY,step){
-    ctx.beginPath();
-    ctx.moveTo(x,y);
-    while (x < midX){
-        x+=Math.round(Math.random()*step);
-        y-=Math.round(Math.random()*step);
-        if(y<minY)y+=20;
-        if(x>=midX)x=midX;
-        ctx.lineTo(x,y);
-    }
-    while (x < maxX){
-        x+=Math.round(Math.random()*step);
-        y+=Math.round(Math.random()*step);
-        if(y>midY)y-=10;
-        if(x>=maxX)x=maxX;
-        ctx.lineTo(x,y);
-    }
-    while (x > midX){
-        x-=Math.round(Math.random()*step);
-        y+=Math.round(Math.random()*step);
-        if(y>maxY)y-=20;
-        if(x<=midX)x=midX;
-        ctx.lineTo(x,y);
-    }
-    while (x > minX){
-        x-=Math.round(Math.random()*step);
-        y-=Math.round(Math.random()*step);
-        if(y<midY)y+=10;
-        if(x<=minX)x=minX;
-        ctx.lineTo(x,y);
-    }
-    ctx.closePath();
-    ctx.fill();
-}
 function paintEarth(){
     var nebulaCanvas=document.getElementById('nebula');
     var c=document.getElementById('stars');
     var ctx = c.getContext("2d");
-    ctx.fillStyle="#233c75";
+    //ctx.fillStyle="#233c75";
+    var grd = ctx.createLinearGradient(0,0,0,1000);
+    grd.addColorStop(0,'#fff');
+    grd.addColorStop(.2,'#fff');
+    grd.addColorStop(.3,'#233c75');
+    grd.addColorStop(.8,'#233c75');
+    grd.addColorStop(.9,'#fff');
+    ctx.fillStyle=grd;
     ctx.fillRect(0,0,1024,1024);
-
-    var grd = ctx.createLinearGradient(300,300,600,800);
-    grd.addColorStop(0, '#b59f87');
-    grd.addColorStop(.2, '#41561e');
+    var grd = ctx.createLinearGradient(0,0,0,1000);
+    grd.addColorStop(0,'#fff');
+    grd.addColorStop(.25,'#fff');
+    grd.addColorStop(.3, '#41561e');
     grd.addColorStop(.5, '#33441e');
     grd.addColorStop(.8, '#41561e');
-    grd.addColorStop(1, '#b59f87');
+    grd.addColorStop(1,'#fff');
     ctx.fillStyle=grd;
-    land(ctx,200,500,200,200,500,500,800,700,10);
-    ctx.fillStyle="#233c75";
-    land(ctx,600,600,400,400,500,500,700,700,10);
-    ctx.fillStyle="#233c75";
-    land(ctx,600,500,600,300,500,450,700,600,10);
-    ctx.fillStyle="#eeeeee";
-    land(ctx,350,500,300,300,350,450,400,600,10);
-    ctx.fillStyle=grd;
-    land(ctx,700,200,700,100,800,300,900,400,10);
-    ctx.fillStyle="#33441e";
-    land(ctx,100,200,50,100,100,900,150,900,10);
-    ctx.fillStyle="#fff";
-    land(ctx,300,0,300,-50,450,0,700,300,10);
+    ctx.font = 1000+'px serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('🗺',512,800);
     noise(10000,1024,1024,255,255,255,0,0,0,ctx,.02);
-
-    nebula(0,0,0,500,500,255,.1);
-    nebula(0,0,0,500,500,255,.1);
-    nebula(0,0,0,500,500,255,.1);
-    nebula(0,0,0,500,500,255,.1);
-    ctx.drawImage(nebulaCanvas,-200,-200);
-    ctx.drawImage(nebulaCanvas,-200,-200);
-    ctx.drawImage(nebulaCanvas,100,300);
-    ctx.drawImage(nebulaCanvas,100,300);
     document.querySelector("#winplanet").setAttribute('src',c.toDataURL("image/png"));
 }
 function asteroids(){
@@ -368,6 +322,7 @@ function buildButtons(){
     for(var levelId in levels){
         buildEntity({type:'a-plane',attributes:',level'+parseInt(levelId)+','+(-1+(levelId*.55))+' 1 -2,,,button,#ff2,.5,.1,.5',children:[{type:'a-text',attributes:',,0 .015 .02,,.3 .3 .3,,,,,,,,,exo2semibold,LEVEL '+(parseInt(levelId)+1)+',,center'}]},document.querySelector('#a-scene'));
     }
+    document.querySelector("#rightController").setAttribute('laser-controls',"objects:.button;");
 }
 function layFloor(x,z){
     buildEntity({type:'a-plane',attributes:',floor'+x+'_'+z+','+(x*3)+' 0 '+(z*3)+',-90 0 0,,floor,#666,3,3'},document.querySelector('#ship'));
@@ -426,12 +381,14 @@ function escape(x, y, z) {
 	windo(x+1.45, 1, z, 180, 'escaperoomw');
 	light(x,z);
 	transporter(x, 0, z);
+    document.querySelector("#game").components.game.data.teleporterPosition = x+' 0 '+z;
 }
 function newgame(){
-    buildEntity({type:'a-text',attributes:",instructions,-8 0 0,0 90 0,,,#ffff82,,,,,,,exo2semibold,It never fails.\n\nAn emergency alert wakes you up from hibernation~ leaving you still partially paralyzed from an epidural. Apparently~ the ship is going to explode any minute.\n\nGreat.\n\nEven better~ the malfunctioning NurseBots insist you stay in the medbay.\n\nSince you can't walk~ use your handy personal teleporter to evade the bots and get to the evacuation transporter~ to port to the nearby planet's surface before it's too late."},document.querySelector("#a-scene"));
+    buildEntity({type:'a-text',attributes:",instructions,-8 0 0,0 90 0,,,#ffff82,,,,,,,exo2semibold,It never fails.\n\nAn emergency alert wakes you up from hibernation~ leaving you still partially paralyzed from an epidural. Apparently~ the ship is going to explode any minute.\n\nGreat.\n\nEven better~ the malfunctioning NurseBots insist you stay in the medbay.\n\nSince you can't walk~ use your handy personal teleporter (HOLD AND RELEASE LEFT TRIGGER) to evade the bots and get to the evacuation transporter~ to port to the nearby planet's surface before it's too late."},document.querySelector("#a-scene"));
     buildButtons();
 }
 function endGame(){
+    done = true;
 	document.querySelector("#a-scene").removeChild(document.querySelector("#ship"));
     document.querySelector("#camera").removeChild(document.querySelector("#timerUI"));
     document.querySelector("#camera").removeChild(document.querySelector("#batteryParentUI"));
@@ -439,9 +396,11 @@ function endGame(){
     document.querySelector("#rig").setAttribute('rotation', '0 0 0');
     document.querySelector("#title1").setAttribute('text','value:YOU ARE DEAD.');
     document.querySelector("#titles2").setAttribute('text','value:Your constituent particles have been converted directly to energy, in a very violent fashion.');
+    done = false;
     buildButtons();
 }
 function win(){
+    done = true;
     document.querySelector("#a-scene").removeChild(document.querySelector("#ship"));
     document.querySelector("#camera").removeChild(document.querySelector("#timerUI"));
     document.querySelector("#camera").removeChild(document.querySelector("#batteryParentUI"));
@@ -449,9 +408,11 @@ function win(){
     document.querySelector("#rig").setAttribute('rotation', '0 0 0');
     document.querySelector("#title1").setAttribute('text',"value:HOME SWEET HOME.");
     document.querySelector("#titles2").setAttribute('text',"value:Well, it's SOMEbody's home, at least. Hope this planet is friendly.");
-    buildEntity({type:'a-sphere',attributes:',winplanet,0 0 -1000,0 0 10,50 50 50,,,,,,,2 1,property:rotation;to:0 360 10;loop:true;dur:180000;easing:linear'},document.querySelector("#a-scene"));
+    buildEntity({type:'a-sphere',attributes:',winplanet,0 0 -1000,,50 50 50,,,,,,,,property:rotation;to:0 360 0;loop:true;dur:180000;easing:linear'},document.querySelector("#a-scene"));
     paintEarth();
+    done = false;
     document.querySelector("#winplanet").setAttribute('animation__2', 'property:position;to:0 0 -120;dur:1000;');
+    buildButtons();
 }
 function openDoor(){
 	var d = document.querySelector('#inner-door');
@@ -645,7 +606,7 @@ function teleport(){
     //zzfx(...[,.2,835,.24,.23,.23,1,.8,-2.1,1.3,-163,.06,.09,,,,,.87,.06]);
     //zzfx(...[,,987,.03,.17,.95,,.28,-0.1,,154,.06,.06,,,,.15,.86,.03]);
 
-    var target = document.querySelector("#"+currenttarget);
+    var target = document.querySelector("#"+currenttarget).parentEl.parentEl;
     document.querySelector('#transporter').setAttribute('position', target.object3D.position.x+' 1 '+target.object3D.position.z);
     setTimeout(finishTeleport, 150);
 }
@@ -729,12 +690,13 @@ function hitPlayer(robotPos, lineEnd){
 function loadLevel(levelLocal){
     if (!loaded) {
         loaded=true;
+        document.querySelector("#rightController").removeAttribute('laser-controls');
         document.querySelector("#log").setAttribute('text', 'value:LOADING...');
         level = levelLocal;
         buildMap();
         buildShip();
         draw();
-        document.querySelector("#newgame").parentNode.removeChild(document.querySelector("#newgame"));
+        document.querySelector("#leftController").setAttribute('teleport-controls', "button:trigger;objects:.collidable,.floor;cameraRig:#rig");
         document.querySelector("#title1").setAttribute('text','value:');
         document.querySelector("#title2").setAttribute('text','value:');
         document.querySelector("#title3").setAttribute('text','value:');
@@ -770,7 +732,6 @@ AFRAME.registerComponent('timer', {
 		    if (timePassed <= 10) this.data.ui.setAttribute('color', '#f00');
             this.data.timeLeft = timePassed;
             if (timePassed < 0 && !done) {
-                //win();
                 endGame();
 			}
 		    this.data.lastTime = newTime;
@@ -790,7 +751,7 @@ AFRAME.registerComponent('button', {
         var el = this.el;
         if (el.getAttribute('id')=='newgame'){
             el.addEventListener('click', function(){
-                document.querySelector("#rightController").removeAttribute('laser-controls');
+                document.querySelector("#newgame").parentEl.removeChild(document.querySelector("#newgame"));
                 newgame();
             });
 		} else {
@@ -807,20 +768,25 @@ AFRAME.registerComponent('game', {
 		timer:{type:'int',default:0},
 		battery:{default:100},
 		batteryUI:{type:'selector'},
-		batteryParentUI:{type:'selector'}
+		batteryParentUI:{type:'selector'},
+        teleporterPosition:{type:'vec3'}
 	},
 	init: function() {
         buildStars();
         asteroids();
         buildFloor();
-        buildEntity({type:'a-plane',attributes:',newgame,-.45 1 -2,,,button,#ff2,.5,.1,.5',children:[{type:'a-text',attributes:',,0 .015 .02,,.3 .3 .3,,,,,,,,,exo2semibold,NEW GAME,,center'}]},document.querySelector('#a-scene'));
-		this.data.battery = 100;
-		var c=document.getElementById('stars');
-        var ctx=c.getContext('2d');
+        buildEntity({
+            type: 'a-plane',
+            attributes: ',newgame,-.45 1 -2,,,button,#ff2,.5,.1,.5',
+            children: [{type: 'a-text', attributes: ',,0 .015 .02,,.3 .3 .3,,,,,,,,,exo2semibold,NEW GAME,,center'}]
+        }, document.querySelector('#a-scene'));
+        this.data.battery = 100;
+        document.querySelector("#rightController").setAttribute('laser-controls',"objects:.button;");
+        var c = document.getElementById('stars');
+        var ctx = c.getContext('2d');
         var stars = c.toDataURL("image/png");
         document.querySelector("#image-360").setAttribute('src', stars);
         document.querySelector("#image-360").setAttribute('repeat', '4 4');
-        //loadLevel(2);
     },
 	tick: function(){
 		this.data.timer++;
@@ -834,45 +800,6 @@ AFRAME.registerComponent('game', {
             this.data.batteryUI.setAttribute('position', (1 + (this.data.battery / 100 / 2)) + ' ' + this.data.batteryUI.object3D.position.y + ' ' + this.data.batteryUI.object3D.position.z);
         }
 	}
-});
-AFRAME.registerComponent('right-controller', {
-	schema: {
-		rig: {type: 'selector'},
-		hitbox: {type: 'selector'},
-		door: {type: 'selector'},
-		innerDoor: {type: 'selector'},
-		doorPos: {type: 'vec3'},
-		buttonPos: {type: 'vec3'},
-		buttonPosX: {type: 'float'},
-		buttonPosY: {type: 'float'},
-		buttonPosZ: {type: 'float'},
-	},
-	init: function() {
-		this.data.rig = document.querySelector('#rig');
-		this.data.hitbox = document.querySelector('#hitbox');
-		this.data.door = document.querySelector('#door');
-		this.data.innerDoor = document.querySelector('#inner-door');
-	},
-	tick: function(){
-		var el = this.el;
-		var elPos = el.object3D.position;
-		var rigPos = this.data.rig.object3D.position;
-		var controllerX = rigPos.x - elPos.x;
-		var controllerY = rigPos.y + elPos.y;
-		var controllerZ = rigPos.z - elPos.z;
-/*
-		this.data.doorPos = this.data.door.object3D.position;
-		this.data.buttonPosX = this.data.doorPos.x + this.data.hitbox.object3D.position.x;
-		this.data.buttonPosY = this.data.doorPos.y + this.data.hitbox.object3D.position.y;
-		this.data.buttonPosZ = this.data.doorPos.z + this.data.hitbox.object3D.position.z;
-		this.data.buttonPos = new THREE.Vector3(this.data.buttonPosX, this.data.buttonPosY, this.data.buttonPosZ);
-
-		if (collided(controllerX, controllerY, controllerZ, this.data.buttonPos, this.data.hitbox)) {
-			this.data.innerDoor.setAttribute('closed', false);
-			this.data.innerDoor.setAttribute('animation', {property:'position',to:'0 1.8 0',dur:500});
-		}
-		*/
-	},
 });
 AFRAME.registerComponent('robot', {
 	schema: {
@@ -1027,11 +954,11 @@ AFRAME.registerComponent('gaze', {
 				<a-entity position="0 .3 -100" id="title1" color="#ffff82" text="font:exo2semibold;align:center;value:HUMAN" scale="3 3 3" animation="property:position;to:0 .3 -1;dur:2000"></a-entity>
 				<a-entity position="0 .19 -100" id="title2" color="#ffff82" text="font:exo2semibold;align:center;value:NOT" scale="2 2 2" animation="property:position;to:0 .19 -1;dur:2000"></a-entity>
 				<a-entity position="0 .1 -100" id="title3" color="#ffff82" text="font:exo2semibold;align:center;value:FOUND" scale="3 3 3" animation="property:position;to:0 .1 -1;dur:2000"></a-entity>
-				<a-entity position="0 -.1 100" id="titles2" color="#ffff82" text='wrap-count:60;font:exo2semibold;align:center;value:In space, no one can hear you scream "This sucks!"' animation="property:position;to:0 -.1 -1;dur:2500"></a-entity>
+				<a-entity position="0 -.1 100" id="titles2" color="#ffff82" text="wrap-count:60;font:exo2semibold;align:center;value:An exploding ship. Crazy NurseBots. And you're paralyzed.\nMust be Tuesday." animation="property:position;to:0 -.1 -1;dur:2500"></a-entity>
 				<a-entity position="0 -.2 -.6" id="log" text="font:exo2semibold;value:;align:center"></a-entity>
 			</a-entity>
-			<a-entity id="leftController" static-body="shape: sphere; sphereRadius: 0.02;" oculus-touch-controls="hand: left" tracked-controls="" teleport-controls="button:trigger;objects:.floor;cameraRig:#rig"></a-entity>
-			<a-entity id="rightController" static-body="shape: sphere; sphereRadius: 0.02;" oculus-touch-controls="hand: right" tracked-controls="button:trigger;objects:.button;" right-controller laser-controls="objects:.button;"></a-entity>
+			<a-entity id="leftController" static-body="shape: sphere; sphereRadius: 0.02;" oculus-touch-controls="hand: left" tracked-controls=""></a-entity>
+			<a-entity id="rightController" static-body="shape: sphere; sphereRadius: 0.02;" oculus-touch-controls="hand: right" tracked-controls="button:trigger;objects:.button;"></a-entity>
 		</a-entity>
 		<!--<a-image id="holo" class="collidable" height=2 width=1 position="7 .8 3" opacity=".7" animation="property:rotation;from:0 -90 -5;to:0 -90 5;loop:true;dur:300;easing:linear;dir:alternate"></a-image>-->
 	</a-scene>
