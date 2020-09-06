@@ -39,15 +39,15 @@ var map1c = ",,,,;,,,,;2,,,,;,,,,;,,,,";
 
 var map2a = ",,,,26,;,,26,,10,;133,5,,5,,5;,,74,,10;,,,,74,";
 var map2b = ",,,64,24,;,,24,,24,;29,24,24,24,25,24;,,24,,24,;,,,128,24,";
-var map2c = ",,,,,;,,,,,;2,,,,,;,,,,,;,,,,,";
+var map2c = ",,,,,;,,,,,;2,,,8,,;,,32,,,;,,,,,";
 
 var map3a = ",,16,,,;,,14,,,;128,7,,13,,,;,,11,,,;,,64,,,";
 var map3b = ",88,24,152,,,;88,88,25,152,152,;24,27,,25,24,;152,152,25,88,88,;,152,24,88,,";
 var map3c = ",,,,,,;,,1,,,,;,8,,2,,,;,,4,,,,;,,,,,,";
 
-var map4a = ",,,16,16,,;,,8,,,2,;133,5,,5,5,,5;,,8,,,2,;,,,64,64,,";
-var map4b = ",,88,25,24,152,;,,24,88,152,24,;29,24,24,24,24,24,25;,,24,152,88,24,;,,152,24,25,88,";
-var map4c = ",,,,,,;,,,,,,;2,,,,,,;,,,,,,;,,,,,,";
+var map4a = ",,,16,16,,;,,8,,,2,;133,5,4,5,5,4,5";
+var map4b = ",,88,25,24,152,;,,24,24,152,24,;29,24,24,24,24,24,25";
+var map4c = ",,,,,,;,,,,,,;2,,64,,,,";
 var level,startX,startZ,rotY,currenttarget;
 var nextMove=Array(3);
 var nextTurn=Array(3);
@@ -61,7 +61,7 @@ var botPaths = [
 	[[{x:6,z:3},{rot:0},{x:6,z:9},{rot:180}],[{x:12,z:0},{rot:0},{x:12,z:12},{rot:180}]],
 	[[{x:0,z:4.5},{rot:360},{x:0,z:7.5},{rot:45},{x:4.5,z:12},{rot:90},{x:7.5,z:12},{rot:135},{x:12,z:7.5},{rot:180},{x:12,z:4.5},{rot:225},{x:7.5,z:0},{rot:270},{x:4.5,z:0},{rot:315}],
         [{x:12,z:7.5},{rot:180},{x:12,z:4.5},{rot:225},{x:7.5,z:0},{rot:270},{x:4.5,z:0},{rot:315},{x:0,z:4.5},{rot:360},{x:0,z:7.5},{rot:45},{x:4.5,z:12},{rot:90},{x:7.5,z:12},{rot:135}]],
-	[[{x:9,z:6},{rot:90},{x:15,z:6},{rot:-90}]]
+	[[{x:6,z:6},{rot:90},{x:18,z:6},{rot:-90}],[{x:6,z:4.5},{rot:135},{x:11.5,z:0},{rot:45},{x:15,z:4.5},{rot:225},{x:11.5,z:0},{rot:315}]]
 ];
 var attnames = ['probability','id','position','rotation','scale','class','color','width','height','opacity','src','repeat','animation','font','value','baseline','align','intensity','distance','depth','radius','open-ended','side','segments-height','segments-radial','theta-length','segments','segments-width','segments-tubular','radius-tubular','arc','gaze','raycaster','line','material','transparent'];
 function insideellipse(rx, ry, r1, r2, mx, my){
@@ -223,6 +223,16 @@ function buildFloor() {
     }
     floorMat = c128.toDataURL("image/png");
 }
+function buildHoloButton(x,y,z,rotY){
+    buildEntity({type:'a-cylinder',attributes:',holobutton,'+x+' '+y+' '+z+',0 '+rotY+' 90,,button,#009,,.12,,,,,,,,,,,,.15',children:[
+        {type:'a-text',attributes:',,0 .08 0,-90 270 0,.3 .3 .3,,,,,,,,,exo2semibold,HOLO'+"\n"+'BUDDY,,center'},
+    ]},document.querySelector("#a-scene"));
+}
+function holo(){
+    var pos = document.querySelector("#holobutton").getAttribute('position');
+    if(!document.querySelector("#holo"))buildEntity({type:'a-image',attributes:',holo,'+pos.x+' .8 '+(pos.z+1)+',,,collidable,,1,2,.7,'+holoImage+',,property:rotation;from:0 90 -5;to:0 90 5;loop:true;dur:300;easing:linear;dir:alternate'},document.querySelector("#ship"))
+	else document.querySelector("#ship").removeChild(document.querySelector("#holo"));
+}
 function buildMap(){
 	var map = levels[level][0];
 	start=levels[level][3].split(',');
@@ -314,6 +324,18 @@ function buildShip(){
             if (walls3 & 8) {
                 doorway(col * 3 - 1.5, 1, row * 3,270);
             }
+            if (walls3 & 16){
+                buildHoloButton(col * 3, .7, row * 3 - 1.4,90);
+            }
+            if (walls3 & 32) {
+                buildHoloButton(col * 3 + 1.4, .7, row * 3,0);
+            }
+            if (walls3 & 64) {
+                buildHoloButton(col * 3, .7, row * 3 + 1.4,270);
+            }
+            if (walls3 & 128) {
+                buildHoloButton(col * 3 - 1.4, .7, row * 3,180);
+            }
 		}
 	}
     document.querySelector("#log").setAttribute('text','value:Time to wake up...');
@@ -352,7 +374,9 @@ function cryo(x,y,z,rotY){
 function doorway(x,y,z,rotY){
     buildEntity({type:'a-entity',attributes:',,'+x+' '+y+' '+z+',0 '+rotY+' 0',children:[
 		{type:'a-box',attributes:',,1 0 0,,,collidable,,1,2,,,,,,,,,,,.15'},
-		{type:'a-box',attributes:',,-1 0 0,,collidable,,,1,2,,,,,,,,,,,.15'}
+		{type:'a-box',attributes:',,-1 0 0,,,collidable,,1,2,,,,,,,,,,,.15'},
+		{type:'a-box',attributes:',,1 0 0,,,,#444,.8,1.6,,,,,,,,,,,.17'},
+		{type:'a-box',attributes:',,-1 0 0,,,,#444,.8,1.6,,,,,,,,,,,.17'}
 	]},document.querySelector('#ship'));
 }
 function light(x,z){
@@ -513,9 +537,8 @@ function draw(){
 	var ctx2 = c2.getContext("2d");
 	ctx2.font = 300+'px serif';
 	ctx2.textAlign = 'center';
-	ctx2.fillText('🙋️',300,400);
-	holoImage = c2.toDataURL("image/png");
-	document.querySelector('#holo').setAttribute('src', holoImage);
+	ctx2.fillText('🙋🏽‍♀️',300,400);
+	holoImage = c2.toDataURL("image/png").replace(/,/g,'~');
 }
 function door(x, y, z, roty){
     buildEntity({type:'a-entity',attributes:',door,'+x+' '+y+' '+z+',0 '+roty+' 0',children:[
@@ -591,8 +614,10 @@ function teleport(){
     //zzfx(...[,,987,.03,.17,.95,,.28,-0.1,,154,.06,.06,,,,.15,.86,.03]);
 
     var target = document.querySelector("#"+currenttarget).parentEl.parentEl;
-    document.querySelector('#transporter').setAttribute('position', target.object3D.position.x+' 1 '+target.object3D.position.z);
-    setTimeout(finishTeleport, 150);
+    if (target.object3D) {
+        document.querySelector('#transporter').setAttribute('position', target.object3D.position.x + ' 1 ' + target.object3D.position.z);
+        setTimeout(finishTeleport, 150);
+    }
 }
 function finishTeleport(){
     if(currenttarget=='player')document.querySelector("#rig").setAttribute('position', startX*3+' 0 '+startZ*3);
@@ -745,7 +770,11 @@ AFRAME.registerComponent('button', {
                 document.querySelector("#camera").removeChild(document.querySelector("#newgame"));
                 newgame();
             });
-		} else if (el.getAttribute('id')=='hitbox') {
+        } else if (el.getAttribute('id')=='holobutton') {
+            el.addEventListener('click', function(){
+                holo();
+            });
+        } else if (el.getAttribute('id')=='hitbox') {
             el.addEventListener('click', function(){
                 openDoor();
             });
@@ -780,6 +809,7 @@ AFRAME.registerComponent('game', {
         var stars = c.toDataURL("image/png");
         document.querySelector("#image-360").setAttribute('src', stars);
         document.querySelector("#image-360").setAttribute('repeat', '4 4');
+        loadLevel(3);
     },
 	tick: function(){
 		if(this.data.battery>100)this.data.battery=100;
@@ -931,13 +961,12 @@ AFRAME.registerComponent('gaze', {
 	<canvas id="c128" style="display:none" width=128 height=128></canvas>
  	<a-scene id='a-scene' background="color:#000" antialias='true' stats>
  		<a-entity id=game game></a-entity>
-		<a-assets><img id="planet" src="earth.png"></a-assets>
-		<a-entity id="ambient" light="type:ambient;color:#fff;intensity:.4"></a-entity>
+		<a-entity id="ambient" light="type:ambient;color:#fff;intensity:.2"></a-entity>
 		<a-entity light="type:directional;color:#fff;intensity:.5" rotation="-90 10 0"></a-entity>
 		<a-sky id="image-360" radius="360" phi-start="140" segments-width=32 segments-height=10></a-sky>
 		<a-entity id="rig" cameraRig position="0 0 0" rotation="0 90 0">
 			<a-entity camera id="camera" wasd-controls="acceleration:150" look-controls="reverseMouseDrag: false" position="0 1.4 0">
-				<a-cylinder class="collidable" height=3 visible=true position="0 1 0" id="player" radius=".5"></a-cylinder>
+				<a-cylinder class="collidable" height=3 visible=true position="0 1 0" id="player" radius=".25"></a-cylinder>
 				<a-entity position="0 .3 -100" id="title1" color="#ffff82" text="font:exo2semibold;align:center;value:HUMAN" scale="3 3 3" animation="property:position;to:0 .3 -2;dur:2000"></a-entity>
 				<a-entity position="0 .19 -100" id="title2" color="#ffff82" text="font:exo2semibold;align:center;value:NOT" scale="2 2 2" animation="property:position;to:0 .19 -2;dur:2000"></a-entity>
 				<a-entity position="0 .1 -100" id="title3" color="#ffff82" text="font:exo2semibold;align:center;value:FOUND" scale="3 3 3" animation="property:position;to:0 .1 -2;dur:2000"></a-entity>
@@ -947,7 +976,6 @@ AFRAME.registerComponent('gaze', {
 			<a-entity id="leftController" static-body="shape: sphere; sphereRadius: 0.02;" oculus-touch-controls="hand: left" vive-controls="hand: left" tracked-controls=""></a-entity>
 			<a-entity id="rightController" static-body="shape: sphere; sphereRadius: 0.02;" oculus-touch-controls="hand: right" vive-controls="hand: right" tracked-controls="button:trigger;objects:.button;" laser-controls="objects.button" raycaster="far:12"></a-entity>
 		</a-entity>
-		<a-image id="holo" class="collidable" height=2 width=1 position="7 3.8 3" opacity=".7" animation="property:rotation;from:0 0 -5;to:0 0 5;loop:true;dur:300;easing:linear;dir:alternate"></a-image>
 	</a-scene>
 </body>
 </html>
