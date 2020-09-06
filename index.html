@@ -515,7 +515,7 @@ function draw(){
 	ctx2.textAlign = 'center';
 	ctx2.fillText('🙋️',300,400);
 	holoImage = c2.toDataURL("image/png");
-	//document.querySelector('#holo').setAttribute('src', holoImage);
+	document.querySelector('#holo').setAttribute('src', holoImage);
 }
 function door(x, y, z, roty){
     buildEntity({type:'a-entity',attributes:',door,'+x+' '+y+' '+z+',0 '+roty+' 0',children:[
@@ -945,9 +945,9 @@ AFRAME.registerComponent('gaze', {
 				<a-entity position="0 -.2 -.6" id="log" text="font:exo2semibold;value:;align:center"></a-entity>
 			</a-entity>
 			<a-entity id="leftController" static-body="shape: sphere; sphereRadius: 0.02;" oculus-touch-controls="hand: left" vive-controls="hand: left" tracked-controls=""></a-entity>
-			<a-entity id="rightController" static-body="shape: sphere; sphereRadius: 0.02;" oculus-touch-controls="hand: right" vive-controls="hand: right" tracked-controls="button:trigger;objects:.button;" laser-controls="objects.button"></a-entity>
+			<a-entity id="rightController" static-body="shape: sphere; sphereRadius: 0.02;" oculus-touch-controls="hand: right" vive-controls="hand: right" tracked-controls="button:trigger;objects:.button;" laser-controls="objects.button" raycaster="far:12"></a-entity>
 		</a-entity>
-		<!--<a-image id="holo" class="collidable" height=2 width=1 position="7 .8 3" opacity=".7" animation="property:rotation;from:0 -90 -5;to:0 -90 5;loop:true;dur:300;easing:linear;dir:alternate"></a-image>-->
+		<a-image id="holo" class="collidable" height=2 width=1 position="7 3.8 3" opacity=".7" animation="property:rotation;from:0 0 -5;to:0 0 5;loop:true;dur:300;easing:linear;dir:alternate"></a-image>
 	</a-scene>
 </body>
 </html>
