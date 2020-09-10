@@ -36,13 +36,13 @@ function ss(val,id){
 var height=4;
 var width=4;
 var holoImage,gameMap,gameMap2,gameMap3,floorMat,batteryImage;
-var map1a = ",,26,,;,,8,,,;133,5,,,;,,8,,;,,74,,";
-var map1b = ",,56,,;,,24,152,;29,24,25,24,24;,,24,88,;,,24,,";
-var map1c = ",,,,;,,,,;2,,,,;,,,,;,,,,";
+var map1a = "146,,26,,;130,,8,,,;128,5,,,;130,,8,,;194,,74,,";
+var map1b = "27,,56,,;24,,24,152,;24,24,25,24,24;24,,24,88,;56,,24,,";
+var map1c = "4,,,,;,,,,;,,,,;,,,,;,,,,";
 
-var map2a = ",,,,26,;,,26,,10,;133,5,,5,,5;,,74,,10;,,,,74,";
+var map2a = ",,,,24,;,,26,,10,;133,5,,5,,37;,,74,,10;,,,,74,";
 var map2b = ",,,64,24,;,,24,,24,;29,24,24,24,25,24;,,24,,24,;,,,128,24,";
-var map2c = ",,,,,;,,,,,;2,,,8,,;,,32,,,;,,,,,";
+var map2c = ",,,,,;,,,,,;2,,,,,;,,32,,,;,,,,,";
 
 var map3a = ",,16,,,;,,14,,,;128,7,,13,,,;,,11,,,;,,64,,,";
 var map3b = ",88,24,152,,,;88,88,25,152,152,;24,27,,57,24,;152,152,25,88,88,;,152,24,88,,";
@@ -63,7 +63,7 @@ var fireListener=Array(3);
 var firing = false;
 var loaded = false;
 var done = false;
-var levels=[[map1a,map1b,map1c,'0,2,90','4,2'],[map2a,map2b,map2c,'0,2,90','6,2'],[map3a,map3b,map3c,'1,2,180','5,2'],[map4a,map4b,map4c,'0,2,180','7,2'],[map5a,map5b,map5c,'0,1,0','6,0']];
+var levels=[[map1a,map1b,map1c,'0,0,90','4,2'],[map2a,map2b,map2c,'0,2,90','5,0'],[map3a,map3b,map3c,'1,2,180','5,2'],[map4a,map4b,map4c,'0,2,180','7,2'],[map5a,map5b,map5c,'0,1,0','6,0']];
 var botPaths = [
 	[[{x:6,z:12},{rot:180},{x:6,z:0},{rot:0}]],
 	[[{x:6,z:3},{rot:0},{x:6,z:9},{rot:180}],[{x:12,z:0},{rot:0},{x:12,z:12},{rot:180}]],
@@ -857,7 +857,6 @@ AFRAME.registerComponent('game', {
         var stars = c.toDataURL("image/png");
         document.querySelector("#image-360").setAttribute('src', stars);
         document.querySelector("#image-360").setAttribute('repeat', '4 4');
-        loadLevel(2);
     },
 	tick: function(){
 		if(this.data.battery>100)this.data.battery=100;
@@ -1007,7 +1006,7 @@ AFRAME.registerComponent('gaze', {
     <canvas id="gradient" style="display:none" height=1024 width=1024></canvas>
     <canvas id="holocanvas" style="display:none" width=600 height=1200></canvas>
 	<canvas id="c128" style="display:none" width=128 height=128></canvas>
- 	<a-scene id='a-scene' background="color:#000" antialias='true' stats>
+ 	<a-scene id='a-scene' background="color:#000" antialias='true'>
  		<a-entity id=game game></a-entity>
 		<a-entity id="ambient" light="type:ambient;color:#fff;intensity:.2"></a-entity>
 		<a-entity light="type:directional;color:#fff;intensity:.5" rotation="-90 10 0"></a-entity>
