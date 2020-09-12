@@ -1,11 +1,5 @@
-﻿<html>
-<head>
-	<title>Human Not Found</title>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-	<script src="https://js13kgames.com/webxr-src/2020/aframe.js"></script>
-	<script src="at.js"></script>
-	<script src="zzfx.micro.js"></script>
-	<script>
+﻿<html><head><title>Human Not Found</title><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><script src="https://js13kgames.com/webxr-src/2020/aframe.js"></script><script>(function(a){function b(d){if(c[d])return c[d].exports;var e=c[d]={exports:{},id:d,loaded:!1};return a[d].call(e.exports,e,e.exports,b),e.loaded=!0,e.exports}var c={};return b.m=a,b.c=c,b.p="",b(0)})([function(a,b,c){function d(a){teleporterPosition=document.querySelector("#game").components.game.data.teleporterPosition.split(" "),a.x<=teleporterPosition[0]+.6&&a.x>=teleporterPosition[0]-.6&&a.z<=teleporterPosition[2]+.6&&a.z>=teleporterPosition[2]-.6&&win()}function e(a){var b="line"===a.type?2:a.curveNumberPoints;return new j(b,a.curveLineWidth)}function f(a){var b,c,d;return c=document.createElement("a-entity"),c.className="hitEntity",d=document.createElement("a-entity"),d.setAttribute("geometry",{primitive:"torus",radius:a.hitCylinderRadius,radiusTubular:.01}),d.setAttribute("rotation",{x:90,y:0,z:0}),d.setAttribute("material",{shader:"flat",color:a.hitCylinderColor,side:"double",depthTest:!1}),c.appendChild(d),b=document.createElement("a-entity"),b.setAttribute("position",{x:0,y:a.hitCylinderHeight/2,z:0}),b.setAttribute("geometry",{primitive:"cylinder",segmentsHeight:1,radius:a.hitCylinderRadius,height:a.hitCylinderHeight,openEnded:!0}),b.setAttribute("material",{shader:"flat",color:a.hitCylinderColor,side:"double",src:h,transparent:!0,depthTest:!1}),c.appendChild(b),c}function g(){var a,b;return a=new THREE.PlaneBufferGeometry(100,100),a.rotateX(-Math.PI/2),b=new THREE.MeshBasicMaterial({color:16776960}),new THREE.Mesh(a,b)}var h=c(1),i=c(2),j=c(3);if("undefined"==typeof AFRAME)throw new Error("Component attempted to register before AFRAME was available.");Element.prototype.matches||(Element.prototype.matches=Element.prototype.matchesSelector||Element.prototype.mozMatchesSelector||Element.prototype.msMatchesSelector||Element.prototype.oMatchesSelector||Element.prototype.webkitMatchesSelector||function(a){for(var b=(this.document||this.ownerDocument).querySelectorAll(a),c=b.length;0<=--c&&b.item(c)!==this;);return-1<c}),AFRAME.registerComponent("teleport-controls",{schema:{type:{default:"line",oneOf:["parabolic","line"]},button:{default:"xbutton",oneOf:["xbutton","trigger"]},startEvents:{type:"array"},endEvents:{type:"array"},collisionEntities:{default:".collidable"},hitEntity:{type:"selector"},cameraRig:{type:"selector"},teleportOrigin:{type:"selector"},hitCylinderColor:{type:"color",default:"#99ff99"},hitCylinderRadius:{default:.25,min:0},hitCylinderHeight:{default:.1,min:0},interval:{default:0},maxLength:{default:3,min:0,if:{type:["line"]}},curveNumberPoints:{default:30,min:2,if:{type:["parabolic"]}},curveLineWidth:{default:.025},curveHitColor:{type:"color",default:"#99ff99"},curveMissColor:{type:"color",default:"#ff0000"},curveShootingSpeed:{default:5,min:0,if:{type:["parabolic"]}},defaultPlaneSize:{default:100},landingNormal:{type:"vec3",default:"0 1 0"},landingMaxAngle:{default:"45",min:0,max:360},drawIncrementally:{default:!1},incrementalDrawMs:{default:700},missOpacity:{default:1},hitOpacity:{default:1},game:{type:"selector"}},init:function(){var a,b,c=this.data,d=this.el;if(this.active=!1,this.obj=d.object3D,this.hitPoint=new THREE.Vector3,this.rigWorldPosition=new THREE.Vector3,this.newRigWorldPosition=new THREE.Vector3,this.teleportEventDetail={oldPosition:this.rigWorldPosition,newPosition:this.newRigWorldPosition,hitPoint:this.hitPoint},this.data.game=document.querySelector("#game"),this.hit=!1,this.prevCheckTime=void 0,this.prevHitHeight=0,this.referenceNormal=new THREE.Vector3,this.curveMissColor=new THREE.Color,this.curveHitColor=new THREE.Color,this.raycaster=new THREE.Raycaster,this.defaultPlane=g(this.data.defaultPlaneSize),this.defaultCollisionMeshes=[this.defaultPlane],a=this.teleportEntity=document.createElement("a-entity"),a.classList.add("teleportRay"),a.setAttribute("visible",!1),d.sceneEl.appendChild(this.teleportEntity),this.onButtonDown=this.onButtonDown.bind(this),this.onButtonUp=this.onButtonUp.bind(this),this.data.startEvents.length&&this.data.endEvents.length){for(b=0;b<this.data.startEvents.length;b++)d.addEventListener(this.data.startEvents[b],this.onButtonDown);for(b=0;b<this.data.endEvents.length;b++)d.addEventListener(this.data.endEvents[b],this.onButtonUp)}else d.addEventListener(c.button+"down",this.onButtonDown),d.addEventListener(c.button+"up",this.onButtonUp);this.queryCollisionEntities()},update:function(a){var b=this.data,c=AFRAME.utils.diff(b,a);this.referenceNormal.copy(b.landingNormal),this.curveMissColor.set(b.curveMissColor),this.curveHitColor.set(b.curveHitColor),(!this.line||"curveLineWidth"in c||"curveNumberPoints"in c||"type"in c)&&(this.line=e(b),this.line.material.opacity=this.data.hitOpacity,this.line.material.transparent=1>this.data.hitOpacity,this.numActivePoints=b.curveNumberPoints,this.teleportEntity.setObject3D("mesh",this.line.mesh)),b.hitEntity?this.hitEntity=b.hitEntity:(!this.hitEntity||"hitCylinderColor"in c||"hitCylinderHeight"in c||"hitCylinderRadius"in c)&&(this.hitEntity&&this.hitEntity.parentNode.removeChild(this.hitEntity),this.hitEntity=f(b),this.el.sceneEl.appendChild(this.hitEntity)),this.hitEntity.setAttribute("visible",!1),"collisionEntities"in c&&this.queryCollisionEntities()},remove:function(){var a=this.el,b=this.hitEntity,c=this.teleportEntity;b&&b.parentNode.removeChild(b),c&&c.parentNode.removeChild(c),a.sceneEl.removeEventListener("child-attached",this.childAttachHandler),a.sceneEl.removeEventListener("child-detached",this.childDetachHandler)},tick:function(){var b=new THREE.Vector3,c=new THREE.Vector3,d=new THREE.Vector3(0,-9.8,0),a=new THREE.Vector3,e=new THREE.Vector3,f=new THREE.Quaternion,g=new THREE.Vector3,h=new THREE.Vector3,i=new THREE.Vector3,j=new THREE.Vector3,k=new THREE.Vector3,l=0;return function(c,d){if((this.data.maxLength=this.data.game.components.game.data.battery/10,!!this.active)&&(this.data.drawIncrementally&&this.redrawLine&&(this.redrawLine=!1,l=0),l+=d,this.numActivePoints=this.data.curveNumberPoints*l/this.data.incrementalDrawMs,this.numActivePoints>this.data.curveNumberPoints&&(this.numActivePoints=this.data.curveNumberPoints),!(this.prevCheckTime&&c-this.prevCheckTime<this.data.interval))){this.prevCheckTime=c;var j=this.obj.matrixWorld;j.decompose(g,f,h);var m=i.set(0,0,-1).applyQuaternion(f).normalize();this.line.setDirection(k.copy(m)),this.obj.getWorldPosition(b),e.copy(b),this.teleportEntity.setAttribute("visible",!0),this.line.material.color.set(this.curveMissColor),this.line.material.opacity=this.data.missOpacity,this.line.material.transparent=1>this.data.missOpacity,this.hitEntity.setAttribute("visible",!1),this.hit=!1,a.copy(e).add(k.copy(m).multiplyScalar(this.data.maxLength)),this.raycaster.far=this.data.maxLength,this.raycaster.set(b,m),this.line.setPoint(0,b),this.checkMeshCollisions(1,a)}}}(),queryCollisionEntities:function(){var a,b=this.data,c=this.el;return b.collisionEntities?void(console.log(c.sceneEl.querySelectorAll(b.collisionEntities)),a=[].slice.call(c.sceneEl.querySelectorAll(b.collisionEntities)),this.collisionEntities=a,this.childAttachHandler=function(c){c.detail.el.matches(b.collisionEntities)&&a.push(c.detail.el)},c.sceneEl.addEventListener("child-attached",this.childAttachHandler),this.childDetachHandler=function(c){var d;c.detail.el.matches(b.collisionEntities)&&(d=a.indexOf(c.detail.el),-1===d||a.splice(d,1))},c.sceneEl.addEventListener("child-detached",this.childDetachHandler)):void(this.collisionEntities=[])},onButtonDown:function(){this.active=!0,this.redrawLine=!0},onButtonUp:function(){const a=new THREE.Vector3,b=new THREE.Vector3,c=[new THREE.Vector3,new THREE.Vector3],e=new THREE.Vector3;return function(){if(this.active&&(this.active=!1,this.hitEntity.setAttribute("visible",!1),this.teleportEntity.setAttribute("visible",!1),!!this.hit)){const e=document.querySelector("#rig")||this.data.cameraRig||this.el.sceneEl.camera.el;e.object3D.getWorldPosition(this.rigWorldPosition),this.newRigWorldPosition.copy(this.hitPoint);const f=this.data.teleportOrigin;f&&(f.object3D.getWorldPosition(a),this.newRigWorldPosition.sub(a).add(this.rigWorldPosition)),this.newRigWorldPosition.y=this.rigWorldPosition.y+this.hitPoint.y-this.prevHitHeight,this.prevHitHeight=this.hitPoint.y;var c=this.rigWorldPosition.distanceTo(this.newRigWorldPosition);b.copy(this.newRigWorldPosition),e.object3D.parent&&e.object3D.parent.worldToLocal(b),e.setAttribute("position",b),d(this.newRigWorldPosition),this.data.game.components.game.data.battery-=10*c,0>this.data.game.components.game.data.battery&&(this.data.game.components.game.data.battery=0),this.el.emit("teleported",this.teleportEventDetail)}}}(),checkMeshCollisions:function(a,b){var c;this.data.collisionEntities?(c=this.collisionEntities.map(function(a){return a.getObject3D("mesh")}).filter(function(a){return a}),c=c.length?c:this.defaultCollisionMeshes):c=this.defaultCollisionMeshes;var d=this.raycaster.intersectObjects(c,!0);if(0<d.length&&!this.hit&&this.isValidNormalsAngle(d[0].face.normal)){var e=d[0].point;this.line.material.color.set(this.curveHitColor),this.line.material.opacity=this.data.hitOpacity,this.line.material.transparent=1>this.data.hitOpacity,this.hitEntity.setAttribute("position",e),this.hitEntity.setAttribute("visible",!0),this.hit=!0,this.hitPoint.copy(d[0].point);for(var f=a;f<this.line.numPoints;f++)this.line.setPoint(f,this.hitPoint);return!0}return this.line.setPoint(a,b),!1},isValidNormalsAngle:function(a){var b=this.referenceNormal.angleTo(a);return THREE.Math.RAD2DEG*b<=this.data.landingMaxAngle}})},function(a){a.exports=""},function(a){a.exports=""},function(a){var b=function(a,b){this.geometry=new THREE.BufferGeometry,this.vertices=new Float32Array(2*(3*a)),this.uvs=new Float32Array(2*(2*a)),this.width=b,this.geometry.addAttribute("position",new THREE.BufferAttribute(this.vertices,3).setDynamic(!0)),this.material=new THREE.MeshBasicMaterial({side:THREE.DoubleSide,color:16711680}),this.mesh=new THREE.Mesh(this.geometry,this.material),this.mesh.frustumCulled=!1,this.mesh.vertices=this.vertices,this.direction=new THREE.Vector3,this.numPoints=a};b.prototype={setDirection:function(a){var b=new THREE.Vector3(0,1,0);this.direction.copy(a).cross(b).normalize().multiplyScalar(this.width/2)},setWidth:function(a){this.width=a},setPoint:function(){var a=new THREE.Vector3,b=new THREE.Vector3;return function(c,d){a.copy(d).add(this.direction),b.copy(d).sub(this.direction);var e=6*c;this.vertices[e++]=a.x,this.vertices[e++]=a.y,this.vertices[e++]=a.z,this.vertices[e++]=b.x,this.vertices[e++]=b.y,this.vertices[e++]=b.z,this.geometry.attributes.position.needsUpdate=!0}}()},a.exports=b}]);</script><script>/*MIT License - Copyright 2019 Frank Force*/'use strict';let zzfx,zzfxV,zzfxX;zzfxV=.3;zzfx=(t=1,a=.05,e=220,n=0,f=0,z=.1,r=0,h=1,s=0,M=0,o=0,x=0,i=0,u=0,c=0,d=0,X=0,b=1,l=0,m=44100,B=[],C=zzfxX.createBufferSource(),P)=>{n=99+n*m,f*=m,z*=m,l*=m,X*=m;for(let C=2*Math.PI,P=t=>1+2*t*Math.random()-t,V=t=>0<t?1:-1,g=n+l+f+z+X,w=s*=500*C/m**2,A=e*=P(a)*C/m,D=V(c)*C/4,I=0,S=0,j=0,k=1,p=0,q=0,v=0;j<g;B[j++]=v)++q>100*d&&(q=0,v=I*e*Math.sin(S*c*C/m-D),v=V(v=r?1<r?2<r?3<r?Math.sin((v%C)**3):Math.max(Math.min(Math.tan(v),1),-1):1-(2*v/C%2+2)%2:1-4*Math.abs(Math.round(v/C)-v/C):Math.sin(v))*Math.abs(v)**h,v*=t*zzfxV*(j<n?j/n:j<n+l?1-(j-n)/l*(1-b):j<n+l+f?b:j<g-X?(g-j-X)/z*b:0),v=X?v/2+(X>j?0:(j<g-X?1:(j-g)/X)*B[j-X|0]/2):v),I+=P(u),S+=P(u),e+=s+=500*M*C/m**3,k&&++k>x*m&&(e+=o*C/m,A+=o*C/m,k=0),i&&++p>i*m&&(e=A,s=w,p=1,k=k||1);return(P=zzfxX.createBuffer(1,n+l+f+z+X,m)).getChannelData(0).set(B),C.buffer=P,C.connect(zzfxX.destination),C.start(),C},zzfxX=new AudioContext</script>
+<script>
 function shiphum(){
 	zzfx(...[.5,.5,847,.02,.3,.9,1,1.67,,,-294,.04,.13,,,,.1])
 }
@@ -23,14 +17,13 @@ function ss(val,id){
 	var vol = getVol(id)*2;
 	var lines = [
 		[vol,,239,,.43,.2,,1.7,,,729,.02,.06,,,.1,,.88,.06],
-		[vol,,395,.15,.02,.46,,1.03,,,550,.04,.09,,,,,,.01],
 		[vol,,39,.17,.28,.25,,1.11,,,750,.09,.02,,,.1,,,.05],
 		[vol,,584,.21,.36,.86,,1.77,,,-157,.02,.1,.1,,,,.82,.08],
 		[vol,,948,.37,.38,.24,,1.52,4.9,,270,.07,.27,,-0.2,,,.85,.02],
 		[vol,,727,,.09,.19,,1.55,,,-100,.1,,,,.1,,,.03]
 	];
 	var titles = [
-		'I found you.','Get back to the medbay!','Target found.','Returning patient to medbay.','Targeting...','Teleporting.'
+		'I found you.','Target found.','Returning patient to medbay.','Targeting...','Teleporting.'
 	];
 	if (talking != val){
 		talking = val;
@@ -46,21 +39,21 @@ var map1a = "146,,26,,;130,,8,,,;128,5,,,;130,,8,,;194,,74,,";
 var map1b = "27,,24,,;24,,56,152,;24,24,25,24,24;24,,24,88,;24,,24,,";
 var map1c = "4,,,,;,,,,;,,,,;,,,,;,,,,";
 
-var map2a = ",,,,24,;,,26,,10,;133,5,,5,,37;,,74,,10;,,,,74,";
-var map2b = ",,,64,24,;,,24,,24,;29,24,24,24,25,24;,,24,,24,;,,,128,24,";
-var map2c = ",,,,,;,,,,,;2,,,,,;,,32,,,;,,,,,";
+var map2a = ",,16,,,;,,14,,,;128,7,,13,,,;,,11,,,;,,64,,,";
+var map2b = ",88,24,152,,,;88,88,25,152,152,;24,27,,57,24,;152,152,25,88,88,;,152,24,88,,";
+var map2c = ",,,,,,;,,1,,,,;,8,,2,,,;,,4,,,,;,,,,,,";
 
-var map3a = ",,16,,,;,,14,,,;128,7,,13,,,;,,11,,,;,,64,,,";
-var map3b = ",88,24,152,,,;88,88,25,152,152,;24,27,,57,24,;152,152,25,88,88,;,152,24,88,,";
-var map3c = ",,,,,,;,,1,,,,;,8,,2,,,;,,4,,,,;,,,,,,";
+var map3a = ",,,,24,;,,26,,10,;133,5,,5,,37;,,74,,10;,,,,74,";
+var map3b = ",,,64,24,;,,24,,24,;29,24,24,24,25,24;,,24,,24,;,,,128,24,";
+var map3c = ",,,,,;,,,,,;2,,,,,;,,32,,,;,,,,,";
 
 var map4a = ",,,16,16,,;,,8,,,2,;133,5,4,5,5,4,5";
 var map4b = ",,88,25,24,152,;,,24,24,152,24,;29,24,24,24,24,24,25";
 var map4c = ",,,,,,;,,,,,,;2,,64,,,,";
 
-var map5a = ",,,16,16,16;133,1,,,,6;,12,4,64,,,";
-var map5b = ",,88,24,24,24;29,24,24,25,24,24;,24,24,24,88,32";
-var map5c = ",,,,,;2,,,,,;,,64,,,";
+var map5a = ",,,16,16,16;133,1,,,4,6;,12,4,66,,,";
+var map5b = ",,88,24,24,24;29,24,24,25,24,24;,24,24,24,,";
+var map5c = ",,,,,;2,,,,,;,,,32,,";
 
 var level,startX,startZ,rotY,currenttarget;
 var nextMove=Array(3);
@@ -69,14 +62,14 @@ var fireListener=Array(3);
 var firing = false;
 var loaded = false;
 var done = false;
-var levels=[[map1a,map1b,map1c,'0,0,90','4,2'],[map2a,map2b,map2c,'0,2,90','5,0'],[map3a,map3b,map3c,'1,2,180','5,2'],[map4a,map4b,map4c,'0,2,180','7,2'],[map5a,map5b,map5c,'0,1,0','6,0']];
+var levels=[[map1a,map1b,map1c,'0,0,90','4,2'],[map2a,map2b,map2c,'1,2,180','5,2'],[map3a,map3b,map3c,'0,2,90','5,0'],[map4a,map4b,map4c,'0,2,180','7,2'],[map5a,map5b,map5c,'0,1,0','6,0']];
 var botPaths = [
 	[[{x:6,z:12},{rot:180},{x:6,z:0},{rot:0}]],
-	[[{x:6,z:3},{rot:0},{x:6,z:9},{rot:180}],[{x:12,z:0},{rot:0},{x:12,z:12},{rot:180}]],
 	[[{x:0,z:4.5},{rot:360},{x:0,z:7.5},{rot:45},{x:4.5,z:12},{rot:90},{x:7.5,z:12},{rot:135},{x:12,z:7.5},{rot:180},{x:12,z:4.5},{rot:225},{x:7.5,z:0},{rot:270},{x:4.5,z:0},{rot:315}],
 		[{x:12,z:7.5},{rot:180},{x:12,z:4.5},{rot:225},{x:7.5,z:0},{rot:270},{x:4.5,z:0},{rot:315},{x:0,z:4.5},{rot:360},{x:0,z:7.5},{rot:45},{x:4.5,z:12},{rot:90},{x:7.5,z:12},{rot:135}]],
+    [[{x:6,z:3},{rot:0},{x:6,z:9},{rot:180}],[{x:12,z:0},{rot:0},{x:12,z:12},{rot:180}]],
 	[[{x:6,z:6},{rot:90},{x:18,z:6},{rot:-90}],[{x:6,z:4.5},{rot:135},{x:11.5,z:0},{rot:45},{x:15,z:4.5},{rot:225},{x:11.5,z:0},{rot:315}]],
-	[[{x:9,z:3},{rot:360}]]
+	[[{x:9,z:2},{rot:0},{x:9,z:4},{rot:180}]]
 ];
 var attnames = ['probability','id','position','rotation','scale','class','color','width','height','opacity','src','repeat','animation','font','value','baseline','align','intensity','distance','depth','radius','open-ended','side','segments-height','segments-radial','theta-length','segments','segments-width','segments-tubular','radius-tubular','arc','gaze','raycaster','line','material','transparent'];
 function insideellipse(rx, ry, r1, r2, mx, my){
@@ -359,6 +352,10 @@ function buildShip(){
 	document.querySelector("#log").setAttribute('text','value:Time to wake up...');
 }
 function buildButtons(){
+    var buttons = document.querySelectorAll('.button');
+    for (i=0;i<buttons.length;i++){
+        document.querySelector("#camera").removeChild(buttons[i]);
+    }
 	var i=x=y=0;
 	for(var levelId in levels){
 		if (i%3==0){
@@ -383,12 +380,6 @@ function dwall(x,y,z,rotY){
 	dwall.setAttribute('position',x+' '+y+' '+z);
 	dwall.setAttribute('rotation','0 '+rotY+' 0');
 }
-function table(x,y,z){
-	buildEntity({type:'a-box',attributes:',,'+x+' '+y+' '+z+',,,,#aaa,.5,.05,,,,,,,,,,,1.1'},document.querySelector('#ship'));
-	buildEntity({type:'a-box',attributes:',,'+x+' '+(y-.39)+' '+z+',,,,#777,.1,.8,,,,,,,,,,,.1'},document.querySelector('#ship'));
-	buildEntity({type:'a-box',attributes:'.3,,'+(x+.1)+' '+y+' '+(z+.1)+',0 30 0,,,#227,.15,.15,,,,,,,,,,,.1'},document.querySelector('#ship'));
-	buildEntity({type:'a-box',attributes:'.3,,'+(x-.1)+' '+(y+.1)+' '+(z-.2)+',0 -20 0,,,#727,.23,.15,,,,,,,,,,,.2'},document.querySelector('#ship'));
-}
 function cryo(x,y,z,rotY){
 	buildEntity({type:'a-cylinder',attributes:',,'+x+' '+y+' '+z+',90 '+(rotY-90)+' 0,,,#77f,,2,.3,,,,,,,,,,,.5,false,double,,,220,,,,,180'},document.querySelector('#ship'));
 	buildEntity({type:'a-box',attributes:',,'+x+' '+(y-.25)+' '+z+',0 '+(rotY+90)+' 0,,,#aaa,1.1,.5,,,,,,,,,,,2.1',children:[
@@ -397,7 +388,6 @@ function cryo(x,y,z,rotY){
 	]},document.querySelector('#ship'));
 }
 function battery(x,y,z){
-	console.log('adding battery');
 	buildEntity({type:'a-cylinder',attributes:',battery,'+x+' '+y+' '+z+',30 0 0,2 2 2,button,#33f,,.2,,'+batteryImage+',2 1,property:rotation;to:30 360 0;loop:true;dur:3000;easing:linear,,,,,,,,.05,false,,,12,,,,,,,,,,shader:flat',children:[
 			{type:'a-cylinder',attributes:',batteryInner,0 .06 0,,,,#eee,,.1,,,,,,,,,,,,.03,false,,,12,,,,,,,,,,shader:flat'}
 		]},document.querySelector('#ship'));
@@ -458,7 +448,7 @@ function endGame(){
 	done = false;
 	buildEntity({
 		type: 'a-plane',
-		attributes: ',level'+level+',0 -.2 -2,,,button,#ff2,.5,.1,.5',
+		attributes: ',level'+level+',0 -.25 -2,,,button,#ff2,.5,.1,.5',
 		children: [{type: 'a-text', attributes: ',,0 .015 .02,,.3 .3 .3,,,,,,,,,exo2semibold,TRY AGAIN,,center'}]
 	}, document.querySelector('#camera'));
 	buildEntity({
@@ -476,21 +466,25 @@ function win(){
 	document.querySelector("#camera").removeChild(document.querySelector("#batteryParentUI"));
 	document.querySelector("#rig").setAttribute('position', '0 50 0');
 	if (level==4) {
-		document.querySelector("#title1").setAttribute('text', "value:HOME SWEET HOME.");
+		document.querySelector("#title1").setAttribute('text', "value:HOME SWEET HOME!");
 		document.querySelector("#titles2").setAttribute('text', "value:Well, somebody's home, at least. Hope this planet is friendly.");
 		buildEntity({
 			type: 'a-sphere',
-			attributes: ',winplanet,1000 50 0,,50 50 50,,,,,,,,property:rotation;to:0 360 0;loop:true;dur:180000;easing:linear'
+			attributes: ',winplanet,1000 50 0,,50 50 50,,,,,,,,property:rotation;from:0 180 0;to:0 540 0;loop:true;dur:180000;easing:linear'
 		}, document.querySelector("#a-scene"));
 		paintEarth();
-		done = false;
 		document.querySelector("#winplanet").setAttribute('animation__2', 'property:position;to:120 50 0;dur:1000;');
+        buildEntity({
+            type: 'a-plane',
+            attributes: ',home,0 -.4 -2,,,button,#ff2,.5,.1,.5',
+            children: [{type: 'a-text', attributes: ',,0 .015 .02,,.3 .3 .3,,,,,,,,,exo2semibold,HOME,,center'}]
+        }, document.querySelector('#camera'));
 	} else {
-		document.querySelector("#title1").setAttribute('text', "value:SAFE AT LAST!");
-		document.querySelector("#titles2").setAttribute('text', "value:Or not. You have 'ported to another ship. Hope there are no NurseBots...");
+		document.querySelector("#title1").setAttribute('text', "value:SAFE! ...right?");
+		document.querySelector("#titles2").setAttribute('text', "value:You have 'ported to another ship. Hope there are no NurseBots...");
 		buildEntity({
 			type: 'a-plane',
-			attributes: ',level'+(level+1)+',0 -.2 -2,,,button,#ff2,.5,.1,.5',
+			attributes: ',level'+(level+1)+',0 -.25 -2,,,button,#ff2,.5,.1,.5',
 			children: [{type: 'a-text', attributes: ',,0 .015 .02,,.3 .3 .3,,,,,,,,,exo2semibold,NEXT,,center'}]
 		}, document.querySelector('#camera'));
 		buildEntity({
@@ -677,9 +671,6 @@ function getVol(id){
 	return 1/dh;
 }
 function teleport(){
-	//zzfx(...[,.2,835,.24,.23,.23,1,.8,-2.1,1.3,-163,.06,.09,,,,,.87,.06]);
-	//zzfx(...[,,987,.03,.17,.95,,.28,-0.1,,154,.06,.06,,,,.15,.86,.03]);
-
 	if (currenttarget=='player') {
 		var target = document.querySelector("#"+currenttarget).parentEl.parentEl;
 		document.querySelector('#transporter').setAttribute('position', target.object3D.position.x + ' 1 ' + target.object3D.position.z);
@@ -1021,7 +1012,7 @@ AFRAME.registerComponent('gaze', {
 					if (hitPlayer(robot.object3D.position, evt.composedPath()[0].components.line.attrValue.end)) {
 						this.so = evt.detail.intersections[0].object.el.id;
 						currenttarget = this.so;
-						ss(Math.floor(Math.random()*6),robot.id);
+						ss(Math.floor(Math.random()*5),robot.id);
 						warmUp(robot.id);
 						robot.emit('foundPlayer',{},true);
 						var bothead = document.querySelector("#head"+robot.id);
@@ -1056,8 +1047,8 @@ AFRAME.registerComponent('gaze', {
 				<a-entity position="0 .3 -100" id="title1" color="#ffff82" text="font:exo2semibold;align:center;value:HUMAN" scale="3 3 3" animation="property:position;to:0 .3 -2;dur:2000"></a-entity>
 				<a-entity position="0 .19 -100" id="title2" color="#ffff82" text="font:exo2semibold;align:center;value:NOT" scale="2 2 2" animation="property:position;to:0 .19 -2;dur:2000"></a-entity>
 				<a-entity position="0 .1 -100" id="title3" color="#ffff82" text="font:exo2semibold;align:center;value:FOUND" scale="3 3 3" animation="property:position;to:0 .1 -2;dur:2000"></a-entity>
-				<a-entity position="0 -.09 -100" id="titles2" color="#ffff82" text="wrap-count:60;font:exo2semibold;align:center;value:An exploding ship. Crazy NurseBots. And to top it off, you're paralyzed.\n\nWell, great." scale="2 2 2" animation="property:position;to:0 -.09 -2;dur:2500"></a-entity>
-				<a-entity position="0 -.1 -.6" id="log" text="font:exo2semibold;value:;align:center"></a-entity>
+				<a-entity position="0 -.09 -100" id="titles2" color="#ffff82" text="wrap-count:60;font:exo2semibold;align:center;value:Exploding ships. Crazy NurseBots. And to top it off, you're paralyzed.\n\nJust super." scale="2 2 2" animation="property:position;to:0 -.09 -2;dur:2500"></a-entity>
+				<a-entity position="0 -.2 -.6" id="log" text="font:exo2semibold;value:;align:center"></a-entity>
 			</a-entity>
 			<a-entity id="leftController" static-body="shape: sphere; sphereRadius: 0.02;" oculus-touch-controls="hand: left" vive-controls="hand: left" tracked-controls=""></a-entity>
 			<a-entity id="rightController" static-body="shape: sphere; sphereRadius: 0.02;" oculus-touch-controls="hand: right" vive-controls="hand: right" tracked-controls="button:trigger;objects:.button;" laser-controls="objects:.button" raycaster="far:23"></a-entity>
