@@ -684,7 +684,6 @@ function teleport(){
 		var target = document.querySelector("#"+currenttarget);
 		var targetworldpos = new THREE.Vector3();
 		target.object3D.getWorldPosition(targetworldpos);
-		var curtarget = document.querySelector("#"+currenttarget).object3D.position;
 		document.querySelector('#transporter').setAttribute('position', targetworldpos.x + ' 1 ' + targetworldpos.z);
 		setTimeout(finishTeleport, 150);
 	}
@@ -1008,7 +1007,7 @@ AFRAME.registerComponent('gaze', {
   	so:{type:'selector'},
   },
   init: function () {
-  	this.data.robot = this.el.parentEl.parentEl.parentEl.parentEl;//document.querySelector("#robot");
+  	this.data.robot = this.el.parentEl.parentEl.parentEl.parentEl;
 	this.el.addEventListener('raycaster-intersection', function (evt) {
 		var robot = evt.srcElement.parentEl.parentEl.parentEl.parentEl;
 		if ((evt.detail.intersections[0].object.el.id == 'player') || (evt.detail.intersections[0].object.el.id == 'holo')){
