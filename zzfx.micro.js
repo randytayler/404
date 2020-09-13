@@ -1,3 +1,17 @@
-﻿'use strict';let zzfx,zzfxV,zzfxX
-zzfxV=.3
-zzfx=(t=1,a=.05,e=220,n=0,f=0,z=.1,r=0,h=1,s=0,M=0,o=0,x=0,i=0,u=0,c=0,d=0,X=0,b=1,l=0,m=44100,B=[],C=zzfxX.createBufferSource(),P)=>{n=99+n*m,f*=m,z*=m,l*=m,X*=m;for(let C=2*Math.PI,P=t=>1+2*t*Math.random()-t,V=t=>0<t?1:-1,g=n+l+f+z+X,w=s*=500*C/m**2,A=e*=P(a)*C/m,D=V(c)*C/4,I=0,S=0,j=0,k=1,p=0,q=0,v=0;j<g;B[j++]=v)++q>100*d&&(q=0,v=I*e*Math.sin(S*c*C/m-D),v=V(v=r?1<r?2<r?3<r?Math.sin((v%C)**3):Math.max(Math.min(Math.tan(v),1),-1):1-(2*v/C%2+2)%2:1-4*Math.abs(Math.round(v/C)-v/C):Math.sin(v))*Math.abs(v)**h,v*=t*zzfxV*(j<n?j/n:j<n+l?1-(j-n)/l*(1-b):j<n+l+f?b:j<g-X?(g-j-X)/z*b:0),v=X?v/2+(X>j?0:(j<g-X?1:(j-g)/X)*B[j-X|0]/2):v),I+=P(u),S+=P(u),e+=s+=500*M*C/m**3,k&&++k>x*m&&(e+=o*C/m,A+=o*C/m,k=0),i&&++p>i*m&&(e=A,s=w,p=1,k=k||1);return(P=zzfxX.createBuffer(1,n+l+f+z+X,m)).getChannelData(0).set(B),C.buffer=P,C.connect(zzfxX.destination),C.start(),C},zzfxX=new AudioContext
+﻿// ZzFX - Zuper Zmall Zound Zynth - Micro Edition
+// MIT License - Copyright 2019 Frank Force
+// https://github.com/KilledByAPixel/ZzFX
+
+// This is a tiny build of zzfx with only a zzfx function to play sounds.
+// You can use zzfxV to set volume.
+// There is a small bit of optional code to improve compatibility.
+// Feel free to minify it further for your own needs!
+
+'use strict';let zzfx,zzfxV,zzfxX,zzfxR
+
+// ZzFXMicro - Zuper Zmall Zound Zynth
+zzfxV=.3    // volume
+zzfx=       // play sound
+(q=1,k=.05,c=220,e=0,t=0,u=.1,r=0,F=1,v=0,z=0,w=0,A=0,l=0,B=0,x=0,G=0,d=0,y=1,m=0,C=0)=>{let b=2*Math.PI,H=v*=500*b/zzfxR**2,I=(0<x?1:-1)*b/4,D=c*=(1+2*k*Math.random()-k)*b/zzfxR,Z=[],g=0,E=0,a=0,n=1,J=0,K=0,f=0,p,h;e=99+zzfxR*e;m*=zzfxR;t*=zzfxR;u*=zzfxR;d*=zzfxR;z*=500*b/zzfxR**3;x*=b/zzfxR;w*=b/zzfxR;A*=zzfxR;l=zzfxR*l|0;for(h=e+m+t+u+d|0;a<h;Z[a++]=f)++K%(100*G|0)||(f=r?1<r?2<r?3<r?Math.sin((g%b)**3):Math.max(Math.min(Math.tan(g),1),-1):1-(2*g/b%2+2)%2:1-4*Math.abs(Math.round(g/b)-g/b):Math.sin(g),f=(l?1-C+C*Math.sin(2*Math.PI*a/l):1)*(0<f?1:-1)*Math.abs(f)**F*q*zzfxV*(a<e?a/e:a<e+m?1-(a-e)/m*(1-y):a<e+m+t?y:a<h-d?(h-a-d)/u*y:0),f=d?f/2+(d>a?0:(a<h-d?1:(h-a)/d)*Z[a-d|0]/2):f),p=(c+=v+=z)*Math.sin(E*x-I),g+=p-p*B*(1-1E9*(Math.sin(a)+1)%2),E+=p-p*B*(1-1E9*(Math.sin(a)**2+1)%2),n&&++n>A&&(c+=w,D+=w,n=0),!l||++J%l||(c=D,v=H,n=n||1);q=zzfxX.createBuffer(1,h,zzfxR);q.getChannelData(0).set(Z);c=zzfxX.createBufferSource();c.buffer=q;c.connect(zzfxX.destination);c.start();return c}
+zzfxX=new(window.AudioContext||webkitAudioContext) // audio context
+zzfxR=44100 // sample rate
